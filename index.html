@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROFÁGUA · Projeto Estruturante 2026–2028</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%230C447C'/><text y='.9em' font-size='60' x='50%' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>PA</text></svg>">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+/* ══════════════════════════════════════
+   RESET & VARIABLES
+══════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --b9:#042C53;--b8:#0C447C;--b6:#185FA5;--b4:#378ADD;--b2:#85B7EB;--b1:#B5D4F4;--b0:#E6F1FB;
+  --g6:#3B6D11;--g0:#EAF3DE;--a6:#854F0B;--a0:#FAEEDA;--r6:#A32D2D;--r0:#FCEBEB;
+  --gray:#5F5E5A;--lg:#F1EFE8;--white:#fff;--bd:#C8DDF5;
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:#EEF5FF;color:#1a2a3a;font-size:13px;}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:linear-gradient(135deg,var(--b9) 0%,var(--b8) 50%,var(--b6) 100%);
+}
+.login-box{
+  background:#fff;border-radius:20px;padding:2.5rem;text-align:center;
+  width:100%;max-width:400px;box-shadow:0 20px 60px rgba(4,44,83,.4);
+}
+.login-logo{width:72px;height:72px;border-radius:50%;background:var(--b8);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:22px;font-weight:900;color:#fff;letter-spacing:-1px;}
+.login-title{font-size:22px;font-weight:900;color:var(--b9);margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--gray);margin-bottom:1.5rem;}
+.login-desc{font-size:11px;color:var(--gray);background:var(--b0);padding:10px 14px;border-radius:8px;margin-bottom:1.5rem;line-height:1.6;}
+.google-btn{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  width:100%;padding:12px;background:#fff;border:1.5px solid var(--bd);
+  border-radius:10px;font-size:14px;font-weight:700;color:var(--b8);
+  cursor:pointer;transition:all .2s;
+}
+.google-btn:hover{background:var(--b0);border-color:var(--b4);}
+.google-btn svg{width:20px;height:20px;}
+.login-note{font-size:10px;color:var(--gray);margin-top:1rem;}
+
+/* ══════════════════════════════════════
+   APP LAYOUT
+══════════════════════════════════════ */
+#app{display:none;flex-direction:column;min-height:100vh;}
+.hdr{
+  background:var(--b9);display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:56px;position:sticky;top:0;z-index:200;
+  border-bottom:3px solid var(--b4);
+}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-ic{width:34px;height:34px;border-radius:50%;background:var(--b4);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;}
+.logo-tx .t1{font-size:13px;font-weight:900;color:#fff;letter-spacing:.5px;}
+.logo-tx .t2{font-size:9px;color:var(--b2);}
+.badge-hdr{background:var(--b8);color:var(--b1);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+.hdr-user{text-align:right;}
+.hdr-user .nm{color:#fff;font-size:12px;font-weight:700;}
+.hdr-user .rl{color:var(--b2);font-size:10px;}
+.av{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--b4);}
+.av-txt{width:32px;height:32px;border-radius:50%;background:var(--b4);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;cursor:pointer;}
+.bell{position:relative;cursor:pointer;color:var(--b1);font-size:18px;line-height:1;}
+.bell-n{position:absolute;top:-4px;right:-4px;background:#E24B4A;color:#fff;font-size:8px;font-weight:900;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;}
+.logout-btn{background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;}
+.logout-btn:hover{background:rgba(255,255,255,.2);}
+
+/* ══════════════════════════════════════
+   BODY / SIDENAV / MAIN
+══════════════════════════════════════ */
+.body{display:flex;flex:1;}
+.sidenav{
+  width:196px;min-width:196px;background:var(--b8);
+  display:flex;flex-direction:column;padding:8px 0;
+  position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+}
+.sn-sec{font-size:9px;font-weight:800;color:var(--b2);letter-spacing:1px;padding:10px 14px 3px;text-transform:uppercase;}
+.sn-btn{
+  display:flex;align-items:center;gap:8px;padding:7px 14px;
+  color:var(--b1);font-size:12px;font-weight:500;cursor:pointer;
+  border:none;background:none;width:100%;text-align:left;
+  border-left:3px solid transparent;transition:all .15s;
+}
+.sn-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+.sn-btn.on{background:rgba(255,255,255,.13);color:#fff;border-left-color:var(--b4);font-weight:700;}
+.sn-ic{width:16px;font-size:14px;text-align:center;flex-shrink:0;}
+.main{flex:1;padding:1.25rem;overflow-x:hidden;min-width:0;}
+.pg{display:none;}
+.pg.on{display:block;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════════════
+   COMMON COMPONENTS
+══════════════════════════════════════ */
+.card{background:#fff;border-radius:12px;padding:1.2rem 1.4rem;border:.5px solid var(--bd);margin-bottom:.9rem;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
+.card-title{font-size:14px;font-weight:800;color:var(--b8);}
+.ph{font-size:18px;font-weight:800;color:var(--b8);margin-bottom:1rem;}
+.row{display:flex;gap:.9rem;flex-wrap:wrap;}
+.col{flex:1;min-width:200px;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:.9rem;}
+.met{background:#fff;border-radius:10px;padding:.85rem 1rem;border:.5px solid var(--bd);text-align:center;}
+.met .lb{font-size:9px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.met .vl{font-size:24px;font-weight:900;color:var(--b8);line-height:1;}
+.met .sb{font-size:10px;color:var(--gray);margin-top:3px;}
+.met.g .vl{color:var(--g6);}
+.met.a .vl{color:var(--a6);}
+.met.r .vl{color:var(--r6);}
+.btn{border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;}
+.btn-p{background:var(--b8);color:#fff;}.btn-p:hover{background:var(--b9);}
+.btn-o{background:var(--b0);border:.5px solid var(--b2);color:var(--b8);}.btn-o:hover{background:var(--b1);}
+.btn-s{padding:4px 12px;font-size:11px;}
+.btn-d{background:var(--r0);color:var(--r6);border:.5px solid #F7C1C1;}.btn-d:hover{background:#F7C1C1;}
+.btn-g{background:var(--g0);color:var(--g6);border:.5px solid #C0DD97;}.btn-g:hover{background:#C0DD97;}
+.fg{margin-bottom:.8rem;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--b8);margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{width:100%;border:.5px solid var(--bd);border-radius:8px;padding:7px 10px;background:var(--b0);color:#1a2a3a;outline:none;transition:border .15s;font-family:inherit;font-size:13px;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--b4);background:#fff;}
+.fg textarea{min-height:68px;resize:vertical;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.t-b{background:var(--b0);color:var(--b6);}
+.t-g{background:var(--g0);color:var(--g6);}
+.t-a{background:var(--a0);color:var(--a6);}
+.t-r{background:var(--r0);color:var(--r6);}
+.t-gr{background:var(--lg);color:var(--gray);}
+.pbar{background:#EEF5FF;border-radius:20px;height:6px;overflow:hidden;margin:5px 0 3px;}
+.pfill{height:100%;border-radius:20px;background:var(--b4);transition:width .5s;}
+.pfill.g{background:var(--g6);}
+.pfill.a{background:var(--a6);}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:6px 10px;border-bottom:.5px solid var(--bd);text-align:left;}
+.tbl td{padding:7px 10px;border-bottom:.5px solid #EEF5FF;font-size:12px;vertical-align:middle;}
+.tbl tr:hover td{background:var(--b0);}
+.drop{border:1.5px dashed var(--b2);border-radius:8px;padding:.9rem;text-align:center;background:var(--b0);cursor:pointer;}
+.drop p{font-size:11px;color:var(--b6);}
+.divider{height:.5px;background:var(--bd);margin:1rem 0;}
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.mb{display:none;position:fixed;inset:0;background:rgba(4,44,83,.5);z-index:500;align-items:center;justify-content:center;}
+.mb.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;width:90%;max-width:540px;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(4,44,83,.3);}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.modal-ti{font-size:15px;font-weight:900;color:var(--b9);}
+.modal-x{background:var(--b0);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:14px;color:var(--b8);}
+
+/* ══════════════════════════════════════
+   ALERT PANEL
+══════════════════════════════════════ */
+.ap{display:none;position:fixed;top:62px;right:16px;width:310px;background:#fff;border-radius:12px;border:.5px solid var(--bd);box-shadow:0 4px 24px rgba(4,44,83,.2);z-index:400;max-height:400px;overflow-y:auto;}
+.ap.open{display:block;}
+.ap-hd{padding:10px 14px;border-bottom:.5px solid var(--bd);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;}
+.al-item{padding:9px 14px;border-bottom:.5px solid #EEF5FF;display:flex;gap:9px;}
+.al-dot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+
+/* ══════════════════════════════════════
+   MURAL GRID
+══════════════════════════════════════ */
+.mural{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.mc{background:#fff;border-radius:12px;border:.5px solid var(--bd);overflow:hidden;transition:transform .2s;}
+.mc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(55,138,221,.15);}
+.mc-img{width:100%;height:120px;background:var(--b0);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;}
+.mc-img img{width:100%;height:100%;object-fit:cover;}
+.mc-bd{padding:9px 12px;}
+.mc-tag{font-size:9px;font-weight:800;color:var(--b6);text-transform:uppercase;letter-spacing:.5px;}
+.mc-ti{font-size:12px;font-weight:700;color:var(--b9);margin:3px 0;}
+.mc-mt{font-size:10px;color:var(--gray);}
+
+/* ══════════════════════════════════════
+   EQUIP / ALUNO CARDS
+══════════════════════════════════════ */
+.eq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.eq-card{background:#fff;border:.5px solid var(--bd);border-radius:10px;padding:10px 12px;}
+.aln-card{background:#fff;border:.5px solid var(--bd);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.aln-av{width:36px;height:36px;border-radius:50%;background:var(--b0);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--b8);flex-shrink:0;}
+.av-sm{width:30px;height:30px;border-radius:50%;background:var(--b8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0;}
+
+/* ══════════════════════════════════════
+   ORC TABLE
+══════════════════════════════════════ */
+.orc-hd{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr 60px;gap:6px;padding:6px 10px;font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;}
+.orc-row{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr 60px;gap:6px;align-items:center;padding:6px 10px;border-radius:8px;}
+.orc-row:hover{background:var(--b0);}
+.orc-inp{width:100%;border:.5px solid var(--bd);border-radius:6px;padding:5px 7px;text-align:right;background:var(--b0);font-size:12px;font-family:inherit;}
+.orc-inp:focus{border-color:var(--b4);background:#fff;outline:none;}
+.orc-desc{border:.5px solid transparent;background:transparent;text-align:left;font-size:12px;}
+.orc-desc:focus{border-color:var(--b4);background:#fff;}
+.orc-tot{font-weight:800;color:var(--b8);font-size:12px;text-align:right;}
+.sec-hd{font-size:10px;font-weight:800;color:var(--b6);text-transform:uppercase;letter-spacing:.5px;padding:6px 10px;background:var(--b0);border-radius:8px;margin:8px 0 4px;}
+
+/* ══════════════════════════════════════
+   LOADING / TOAST
+══════════════════════════════════════ */
+.loading{display:flex;align-items:center;justify-content:center;padding:2rem;color:var(--gray);gap:8px;}
+.spinner{width:18px;height:18px;border:2px solid var(--bd);border-top-color:var(--b4);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--b8);color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:12px;display:none;z-index:999;animation:slideUp .3s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════════════
+   ONLINE INDICATOR
+══════════════════════════════════════ */
+.online-bar{background:var(--g0);border-bottom:.5px solid #C0DD97;padding:4px 1.5rem;font-size:10px;font-weight:700;color:var(--g6);display:flex;align-items:center;gap:6px;}
+.online-bar .dot{width:7px;height:7px;border-radius:50%;background:var(--g6);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:700px){
+  .sidenav{display:none;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .mural{grid-template-columns:repeat(2,1fr);}
+  .eq-grid{grid-template-columns:repeat(2,1fr);}
+  .fr2,.fr3{grid-template-columns:1fr;}
+  .orc-hd,.orc-row{grid-template-columns:1fr 1fr;font-size:11px;}
+  .main{padding:.9rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">PA</div>
+    <div class="login-title">PROFÁGUA</div>
+    <div class="login-sub">Projeto Estruturante 2026–2028 · UNEMAT</div>
+    <div class="login-desc">
+      Plataforma colaborativa de monitoramento do Projeto Estruturante.<br>
+      Todos os pesquisadores acessam, contribuem e visualizam tudo em tempo real.<br><span style="color:var(--g6);font-weight:700;">✓ 100% gratuito · Firebase Spark</span>
+    </div>
+    <button class="google-btn" onclick="loginGoogle()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Entrar com Gmail institucional
+    </button>
+    <p class="login-note">Use seu e-mail @unemat.br ou Gmail pessoal autorizado pelo coordenador.</p>
+    <div id="login-error" style="color:var(--r6);font-size:11px;margin-top:.75rem;display:none;"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     APP
+════════════════════════════════════ -->
+<div id="app" style="display:none;flex-direction:column;min-height:100vh;">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="logo">
+        <div class="logo-ic">PA</div>
+        <div class="logo-tx"><div class="t1">PROFÁGUA</div><div class="t2">UNEMAT · Cáceres-MT</div></div>
+      </div>
+      <div class="badge-hdr">Projeto Estruturante 2026–2028</div>
+    </div>
+    <div class="hdr-r">
+      <div class="bell" onclick="toggleAlerts()">
+        🔔<div class="bell-n" id="bell-n">0</div>
+      </div>
+      <div class="hdr-user">
+        <div class="nm" id="hdr-nm">Carregando...</div>
+        <div class="rl" id="hdr-rl">PROFÁGUA/UNEMAT</div>
+      </div>
+      <div id="hdr-av-wrap"></div>
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <!-- ONLINE BAR -->
+  <div class="online-bar">
+    <div class="dot"></div>
+    Plataforma online · Dados sincronizados em tempo real · Versão gratuita (sem upload de arquivos)
+  </div>
+
+  <!-- ALERT PANEL -->
+  <div class="ap" id="ap">
+    <div class="ap-hd">
+      <span style="font-weight:800;font-size:13px;color:var(--b9);">Alertas</span>
+      <button class="btn btn-o btn-s" onclick="openM('m-alerta')">+ Novo alerta</button>
+    </div>
+    <div id="ap-list"></div>
+  </div>
+
+  <div class="body">
+    <!-- SIDENAV -->
+    <div class="sidenav">
+      <div class="sn-sec">Principal</div>
+      <button class="sn-btn on" onclick="go('dashboard',this)"><span class="sn-ic">🏠</span>Painel</button>
+      <button class="sn-btn" onclick="go('mural',this)"><span class="sn-ic">🖼</span>Mural</button>
+      <div class="sn-sec">Produção</div>
+      <button class="sn-btn" onclick="go('metas',this)"><span class="sn-ic">🎯</span>Metas</button>
+      <button class="sn-btn" onclick="go('producao',this)"><span class="sn-ic">📄</span>Produções</button>
+      <button class="sn-btn" onclick="go('atividades',this)"><span class="sn-ic">📸</span>Atividades</button>
+      <button class="sn-btn" onclick="go('relatorio',this)"><span class="sn-ic">📝</span>Relatório Mensal</button>
+      <div class="sn-sec">Gestão</div>
+      <button class="sn-btn" onclick="go('orcamento',this)"><span class="sn-ic">💰</span>Orçamento</button>
+      <button class="sn-btn" onclick="go('equipamentos',this)"><span class="sn-ic">🔬</span>Equipamentos</button>
+      <button class="sn-btn" onclick="go('alunos',this)"><span class="sn-ic">🎓</span>Alunos</button>
+      <div class="sn-sec">Projeto</div>
+      <button class="sn-btn" onclick="go('equipe',this)"><span class="sn-ic">👥</span>Equipe</button>
+      <button class="sn-btn" onclick="go('projeto',this)"><span class="sn-ic">📊</span>Visão Geral</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="pg on" id="pg-dashboard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:20px;font-weight:900;color:var(--b8);" id="dash-greet">Olá!</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px;" id="dash-date"></div>
+          </div>
+          <button class="btn btn-p btn-s" onclick="go('relatorio',null)">+ Relatório do mês</button>
+        </div>
+        <div class="metrics" id="dash-met"></div>
+        <div class="row">
+          <div class="col" style="min-width:280px;">
+            <div class="card">
+              <div class="card-hd"><div class="card-title">🎯 Minhas metas ativas</div></div>
+              <div id="dash-metas"></div>
+            </div>
+          </div>
+          <div class="col" style="min-width:210px;">
+            <div class="card">
+              <div class="card-hd"><div class="card-title">🔔 Alertas pendentes</div></div>
+              <div id="dash-al"></div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title">📊 Projeto geral</div></div>
+              <div id="dash-proj"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">📄 Produções recentes do projeto</div></div>
+          <div id="dash-prods"></div>
+        </div>
+      </div>
+
+      <!-- MURAL -->
+      <div class="pg" id="pg-mural">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="ph" style="margin:0;">🖼 Mural do Projeto</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-mural')">+ Nova publicação</button>
+        </div>
+        <div class="mural" id="mural-grid"></div>
+      </div>
+
+      <!-- METAS -->
+      <div class="pg" id="pg-metas">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+          <div class="ph" style="margin:0;">🎯 Minhas Metas</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-meta')">+ Nova meta</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:.9rem;flex-wrap:wrap;" id="meta-fil">
+          <button class="btn btn-p btn-s" onclick="filterMetas('todas',this)">Todas</button>
+          <button class="btn btn-o btn-s" onclick="filterMetas('andamento',this)">Em andamento</button>
+          <button class="btn btn-o btn-s" onclick="filterMetas('concluida',this)">Concluídas</button>
+          <button class="btn btn-o btn-s" onclick="filterMetas('pendente',this)">Pendentes</button>
+        </div>
+        <div id="metas-list"></div>
+      </div>
+
+      <!-- PRODUÇÕES -->
+      <div class="pg" id="pg-producao">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+          <div class="ph" style="margin:0;">📄 Produções Científicas</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-prod')">+ Cadastrar produção</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:.9rem;flex-wrap:wrap;" id="prod-fil">
+          <button class="btn btn-p btn-s" onclick="filterProd('todas',this)">Todas</button>
+          <button class="btn btn-o btn-s" onclick="filterProd('artigo',this)">Artigos</button>
+          <button class="btn btn-o btn-s" onclick="filterProd('capitulo',this)">Capítulos</button>
+          <button class="btn btn-o btn-s" onclick="filterProd('software',this)">Softwares</button>
+          <button class="btn btn-o btn-s" onclick="filterProd('resumo',this)">Resumos/Congresso</button>
+          <button class="btn btn-o btn-s" onclick="filterProd('relatorio',this)">Relatórios Técnicos</button>
+        </div>
+        <div class="card" style="padding:.75rem 1rem;">
+          <table class="tbl">
+            <thead><tr>
+              <th>Título / Veículo</th><th>Tipo</th><th>Autor(es)</th><th>Status</th><th>Linha</th><th>Arq.</th><th></th>
+            </tr></thead>
+            <tbody id="prod-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ATIVIDADES -->
+      <div class="pg" id="pg-atividades">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="ph" style="margin:0;">📸 Atividades Realizadas</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-ativ')">+ Registrar atividade</button>
+        </div>
+        <div class="mural" id="ativ-grid"></div>
+      </div>
+
+      <!-- RELATÓRIO -->
+      <div class="pg" id="pg-relatorio">
+        <div class="ph">📝 Relatório Mensal</div>
+        <div class="card">
+          <div class="fr2">
+            <div class="fg"><label>Mês de referência</label>
+              <select id="rel-mes">
+                <option>Março 2026</option><option>Abril 2026</option><option selected>Maio 2026</option>
+                <option>Junho 2026</option><option>Julho 2026</option><option>Agosto 2026</option>
+                <option>Setembro 2026</option><option>Outubro 2026</option><option>Novembro 2026</option>
+                <option>Dezembro 2026</option>
+              </select></div>
+            <div class="fg"><label>Linha de pesquisa</label>
+              <select id="rel-linha">
+                <option>L1 – Monitoramento e Modelagem</option>
+                <option>L2 – Biodiversidade e Biogeoquímica</option>
+                <option>L3 – Gestão Territorial</option>
+                <option>Transversal (L1, L2 e L3)</option>
+              </select></div>
+          </div>
+          <div class="fg"><label>Atividades realizadas no período</label>
+            <textarea id="rel-ativ" placeholder="Descreva orientações, coletas, análises, publicações submetidas, reuniões, eventos..."></textarea></div>
+          <div class="fg"><label>Metas avançadas neste mês</label>
+            <div id="rel-metas-chk" style="display:flex;flex-direction:column;gap:5px;max-height:140px;overflow-y:auto;"></div></div>
+          <div class="fr2">
+            <div class="fg"><label>Dificuldades encontradas</label>
+              <textarea id="rel-dif" placeholder="Eventuais entraves..." style="min-height:52px;"></textarea></div>
+            <div class="fg"><label>Previsão para o próximo mês</label>
+              <textarea id="rel-prev" placeholder="O que está previsto..." style="min-height:52px;"></textarea></div>
+          </div>
+          <div class="fg"><label>Evidências (fotos, dados, arquivos)</label>
+            <div class="drop" onclick="uploadFile('rel-file','rel-drop-p')">
+              <p id="rel-drop-p">Upload de arquivos não disponível no plano gratuito. Os dados textuais são salvos normalmente.</p>
+              <input type="file" id="rel-file" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.xlsx,.csv" onchange="handleFileSelect(this,'rel-drop-p')">
+            </div></div>
+          <button class="btn btn-p" style="width:100%;margin-top:.4rem;" onclick="submitRel()">Enviar Relatório</button>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:.75rem;">📋 Histórico de Relatórios</div>
+          <div id="hist-list"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+        </div>
+      </div>
+
+      <!-- ORÇAMENTO -->
+      <div class="pg" id="pg-orcamento">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="ph" style="margin:0;">💰 Orçamento do Projeto</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-o btn-s" onclick="addOrcItem()">+ Item</button>
+            <button class="btn btn-p btn-s" onclick="saveOrc()">Salvar</button>
+          </div>
+        </div>
+        <div class="card" style="padding:.75rem 1rem;">
+          <div class="orc-hd">
+            <span>Categoria / Descrição</span><span style="text-align:right">2026</span>
+            <span style="text-align:right">2027</span><span style="text-align:right">2028</span>
+            <span style="text-align:right">Total</span><span></span>
+          </div>
+          <div id="orc-body"></div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:flex-end;gap:1.5rem;align-items:center;">
+            <div style="font-size:11px;color:var(--gray);" id="orc-sub"></div>
+            <div>
+              <div style="font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;">Total Geral</div>
+              <div style="font-size:22px;font-weight:900;color:var(--b8);" id="orc-tot">R$ 0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EQUIPAMENTOS -->
+      <div class="pg" id="pg-equipamentos">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="ph" style="margin:0;">🔬 Equipamentos do Projeto</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-equip')">+ Cadastrar</button>
+        </div>
+        <div class="eq-grid" id="equip-grid"></div>
+      </div>
+
+      <!-- ALUNOS -->
+      <div class="pg" id="pg-alunos">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="ph" style="margin:0;">🎓 Alunos e Dissertações</div>
+          <button class="btn btn-p btn-s" onclick="openM('m-aluno')">+ Cadastrar aluno</button>
+        </div>
+        <div id="alunos-list"></div>
+      </div>
+
+      <!-- EQUIPE -->
+      <div class="pg" id="pg-equipe">
+        <div class="ph">👥 Equipe de Pesquisadores</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="equipe-grid"></div>
+      </div>
+
+      <!-- PROJETO -->
+      <div class="pg" id="pg-projeto">
+        <div class="ph">📊 Visão Geral do Projeto</div>
+        <div class="metrics" id="proj-met"></div>
+        <div class="row">
+          <div class="col">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:.75rem;">Progresso por pesquisador</div>
+              <div id="proj-docs"></div>
+            </div>
+          </div>
+          <div class="col" style="min-width:210px;">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:.75rem;">Produtos cadastrados</div>
+              <div id="proj-prods"></div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:.75rem;">Progresso por linha</div>
+              <div id="proj-linhas"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<!-- ════════════════════════════════
+     MODALS
+════════════════════════════════ -->
+<!-- Meta -->
+<div class="mb" id="m-meta">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">🎯 Nova Meta</div><button class="modal-x" onclick="closeM('m-meta')">✕</button></div>
+    <div class="fg"><label>Descrição da meta</label><input type="text" id="mt-desc" placeholder="Descreva a meta de forma clara e mensurável"></div>
+    <div class="fr2">
+      <div class="fg"><label>Categoria</label>
+        <select id="mt-cat">
+          <option>Artigo científico</option><option>Capítulo de livro</option><option>Campanha de campo</option>
+          <option>Análise laboratorial</option><option>Plataforma digital</option><option>Relatório técnico</option>
+          <option>Orientação de dissertação</option><option>Evento / congresso</option><option>Outro</option>
+        </select></div>
+      <div class="fg"><label>Prazo</label><input type="date" id="mt-prazo"></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;" onclick="addMeta()">Criar Meta</button>
+  </div>
+</div>
+
+<!-- Produção -->
+<div class="mb" id="m-prod">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">📄 Cadastrar Produção</div><button class="modal-x" onclick="closeM('m-prod')">✕</button></div>
+    <div class="fg"><label>Tipo</label>
+      <select id="pd-tipo">
+        <option value="artigo">Artigo científico</option><option value="capitulo">Capítulo de livro</option>
+        <option value="software">Software / plataforma</option><option value="resumo">Resumo em congresso</option>
+        <option value="relatorio">Relatório técnico</option><option value="ebook">E-book</option>
+      </select></div>
+    <div class="fg"><label>Título completo</label><input type="text" id="pd-tit" placeholder="Título completo da produção"></div>
+    <div class="fr2">
+      <div class="fg"><label>Autores</label><input type="text" id="pd-aut" placeholder="Sobrenome, N.; Sobrenome, N."></div>
+      <div class="fg"><label>Ano</label><input type="number" id="pd-ano" value="2026" min="2026" max="2030"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Periódico / Evento / Editora</label><input type="text" id="pd-vei" placeholder="Ex: Hydrobiologia, SBRH 2026"></div>
+      <div class="fg"><label>Status</label>
+        <select id="pd-sta"><option>Em preparação</option><option>Submetido</option><option>Aceito</option><option>Publicado</option></select></div>
+    </div>
+    <div class="fg"><label>DOI / URL de acesso</label><input type="url" id="pd-doi" placeholder="https://doi.org/..."></div>
+    <div class="fg"><label>Linha de pesquisa</label>
+      <select id="pd-lin">
+        <option>L1 – Monitoramento e Modelagem</option><option>L2 – Biodiversidade e Biogeoquímica</option>
+        <option>L3 – Gestão Territorial</option><option>Transversal</option>
+      </select></div>
+    <div class="fg"><label>Arquivo (PDF)</label>
+      <div class="drop" style="opacity:.5;cursor:not-allowed;">
+        <p id="pd-drop-p">Upload de arquivo não disponível no plano gratuito (dados textuais salvos normalmente).</p>
+        <input type="file" id="pd-file" style="display:none;" accept=".pdf" onchange="handleFileSelect(this,'pd-drop-p')">
+      </div></div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addProd()">Salvar Produção</button>
+  </div>
+</div>
+
+<!-- Atividade -->
+<div class="mb" id="m-ativ">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">📸 Registrar Atividade</div><button class="modal-x" onclick="closeM('m-ativ')">✕</button></div>
+    <div class="fg"><label>Tipo de atividade</label>
+      <select id="at-tip">
+        <option>🏕 Campanha de campo</option><option>🔬 Análise laboratorial</option>
+        <option>📅 Reunião / Workshop</option><option>🎓 Orientação / Defesa</option>
+        <option>🌿 Restauração ecológica</option><option>🤝 Ação comunitária</option><option>📚 Evento científico</option>
+      </select></div>
+    <div class="fg"><label>Título</label><input type="text" id="at-tit" placeholder="Ex: Campanha de campo – Rio Paraguai, Porto Estrela"></div>
+    <div class="fr2">
+      <div class="fg"><label>Data</label><input type="date" id="at-dat"></div>
+      <div class="fg"><label>Local</label><input type="text" id="at-loc" placeholder="Ex: Rio Paraguai, Pantanal Norte"></div>
+    </div>
+    <div class="fg"><label>Alunos participantes</label><input type="text" id="at-alu" placeholder="Ex: João Silva, Maria Souza"></div>
+    <div class="fg"><label>Descrição</label><textarea id="at-des" placeholder="O que foi feito, resultados preliminares, observações..."></textarea></div>
+    <div class="fg"><label>Foto / arquivo</label>
+      <div class="drop" style="opacity:.5;cursor:not-allowed;">
+        <p id="at-drop-p">Upload de foto não disponível no plano gratuito (texto e dados salvos normalmente).</p>
+        <input type="file" id="at-file" style="display:none;" accept=".jpg,.jpeg,.png,.pdf" onchange="handleFileSelect(this,'at-drop-p')">
+      </div></div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addAtiv()">Registrar Atividade</button>
+  </div>
+</div>
+
+<!-- Equipamento -->
+<div class="mb" id="m-equip">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">🔬 Cadastrar Equipamento</div><button class="modal-x" onclick="closeM('m-equip')">✕</button></div>
+    <div class="fg"><label>Nome do equipamento</label><input type="text" id="eq-nm" placeholder="Ex: Analisador de mercúrio CV-AAS"></div>
+    <div class="fr2">
+      <div class="fg"><label>Categoria</label>
+        <select id="eq-cat">
+          <option>🔬 Laboratório</option><option>🏕 Campo</option><option>💻 Informática</option>
+          <option>📡 Sensoriamento</option><option>🌡 Meteorologia</option><option>🚤 Embarcação</option>
+        </select></div>
+      <div class="fg"><label>Nº Patrimônio</label><input type="text" id="eq-pat" placeholder="PAT-2026-001"></div>
+    </div>
+    <div class="fg"><label>Responsável</label><input type="text" id="eq-res" placeholder="Nome do pesquisador responsável"></div>
+    <div class="fg"><label>Disponibilidade</label>
+      <select id="eq-dis">
+        <option>Disponível para todos</option><option>Disponível – agendamento</option>
+        <option>Em uso</option><option>Em manutenção</option>
+      </select></div>
+    <div class="fg"><label>Observações / Instruções de uso</label>
+      <textarea id="eq-obs" placeholder="Como reservar, cuidados especiais, localização..."></textarea></div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addEquip()">Cadastrar</button>
+  </div>
+</div>
+
+<!-- Aluno -->
+<div class="mb" id="m-aluno">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">🎓 Cadastrar Aluno</div><button class="modal-x" onclick="closeM('m-aluno')">✕</button></div>
+    <div class="fr2">
+      <div class="fg"><label>Nome completo</label><input type="text" id="aln-nm" placeholder="Nome do aluno"></div>
+      <div class="fg"><label>Matrícula</label><input type="text" id="aln-mat" placeholder="2026XXXX"></div>
+    </div>
+    <div class="fg"><label>Título provisório da dissertação</label>
+      <input type="text" id="aln-tit" placeholder="Título ou área temática"></div>
+    <div class="fr2">
+      <div class="fg"><label>Linha de pesquisa</label>
+        <select id="aln-lin">
+          <option>L1 – Monitoramento e Modelagem</option>
+          <option>L2 – Biodiversidade e Biogeoquímica</option>
+          <option>L3 – Gestão Territorial</option>
+        </select></div>
+      <div class="fg"><label>Entrada no programa</label><input type="month" id="aln-ent" value="2026-03"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Previsão de defesa</label><input type="month" id="aln-def" value="2027-12"></div>
+      <div class="fg"><label>Status</label>
+        <select id="aln-sta">
+          <option>Ativo – fase de coleta</option><option>Ativo – fase de escrita</option>
+          <option>Ativo – qualificação</option><option>Defesa agendada</option><option>Concluído</option>
+        </select></div>
+    </div>
+    <div class="fg"><label>Observações</label><textarea id="aln-obs" placeholder="Bolsa, co-orientador, informações adicionais..." style="min-height:52px;"></textarea></div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addAluno()">Cadastrar</button>
+  </div>
+</div>
+
+<!-- Alerta -->
+<div class="mb" id="m-alerta">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">🔔 Criar Alerta</div><button class="modal-x" onclick="closeM('m-alerta')">✕</button></div>
+    <div class="fg"><label>Tipo de alerta</label>
+      <select id="al-tip">
+        <option>🏕 Campanha de campo</option><option>🔬 Análise laboratorial</option>
+        <option>📅 Reunião de equipe</option><option>📄 Entrega de relatório</option>
+        <option>🎯 Meta com prazo próximo</option><option>📚 Congresso / evento</option>
+        <option>💰 Prazo orçamentário</option><option>🎓 Defesa de dissertação</option>
+        <option>⚠ Alerta personalizado</option>
+      </select></div>
+    <div class="fg"><label>Descrição</label><input type="text" id="al-des" placeholder="Ex: Campanha no Rio Paraguai – Porto Estrela"></div>
+    <div class="fr2">
+      <div class="fg"><label>Data</label><input type="date" id="al-dat"></div>
+      <div class="fg"><label>Prioridade</label>
+        <select id="al-pri"><option>Alta</option><option selected>Média</option><option>Baixa</option></select></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addAlerta()">Criar Alerta para todos</button>
+  </div>
+</div>
+
+<!-- Mural -->
+<div class="mb" id="m-mural">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ti">🖼 Publicar no Mural</div><button class="modal-x" onclick="closeM('m-mural')">✕</button></div>
+    <div class="fg"><label>Título</label><input type="text" id="mu-tit" placeholder="Título da publicação"></div>
+    <div class="fg"><label>Texto / Descrição</label><textarea id="mu-txt" placeholder="Compartilhe uma conquista, resultado, novidade do projeto..."></textarea></div>
+    <div class="fr2">
+      <div class="fg"><label>Emoji representativo</label><input type="text" id="mu-em" placeholder="🎉 ou 🏕 ou 📄" style="font-size:18px;"></div>
+      <div class="fg"><label>Foto</label>
+        <div class="drop" style="padding:.5rem;opacity:.5;cursor:not-allowed;">
+          <p id="mu-drop-p" style="font-size:10px;">Sem upload (plano gratuito).</p>
+          <input type="file" id="mu-file" style="display:none;" accept=".jpg,.jpeg,.png" onchange="handleFileSelect(this,'mu-drop-p')">
+        </div></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:.25rem;" onclick="addMural()">Publicar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════
+     FIREBASE CONFIG + APP LOGIC
+════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════
+   ⚠️ CONFIGURAÇÃO DO FIREBASE
+   Substitua os valores abaixo pelos seus
+   do Firebase Console (ver README)
+══════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey: "COLE_SEU_apiKey_AQUI",
+  authDomain: "COLE_SEU_authDomain_AQUI",
+  projectId: "COLE_SEU_projectId_AQUI",
+  messagingSenderId: "COLE_SEU_messagingSenderId_AQUI",
+  appId: "COLE_SEU_appId_AQUI"
+};
+
+/* ══════════════════════════════════════
+   INIT FIREBASE
+══════════════════════════════════════ */
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+let CUR_USER = null;
+
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+function loginGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  // Redireciona para a página do Google (funciona em qualquer navegador sem popup)
+  auth.signInWithRedirect(provider).catch(e=>{
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-error').textContent='Erro ao fazer login: '+e.message;
+  });
+}
+
+// Captura o resultado do redirect ao voltar para a página
+auth.getRedirectResult().catch(e=>{
+  if(e.code !== 'auth/no-current-user'){
+    document.getElementById('login-error') && (document.getElementById('login-error').style.display='block');
+    document.getElementById('login-error') && (document.getElementById('login-error').textContent='Erro: '+e.message);
+  }
+});
+function logout(){ auth.signOut(); }
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    CUR_USER = user;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('hdr-nm').textContent = user.displayName || user.email.split('@')[0];
+    document.getElementById('hdr-rl').textContent = 'PROFÁGUA/UNEMAT';
+    const wrap = document.getElementById('hdr-av-wrap');
+    if(user.photoURL){
+      wrap.innerHTML=`<img src="${user.photoURL}" class="av" alt="foto">`;
+    } else {
+      const ini=(user.displayName||user.email).split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      wrap.innerHTML=`<div class="av-txt">${ini}</div>`;
+    }
+    document.getElementById('dash-greet').textContent='Olá, '+(user.displayName||user.email.split('@')[0]).split(' ')[0]+'!';
+    document.getElementById('dash-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    initRealtime();
+    renderDash();
+  } else {
+    CUR_USER=null;
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+});
+
+/* ══════════════════════════════════════
+   REALTIME LISTENERS
+══════════════════════════════════════ */
+function initRealtime(){
+  // Alertas em tempo real
+  db.collection('alertas').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.alertas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderAlertPanel();
+    if(document.getElementById('pg-dashboard').classList.contains('on')) renderDash();
+  });
+  // Produções em tempo real
+  db.collection('producoes').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.producoes = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-producao').classList.contains('on')) renderProd();
+    if(document.getElementById('pg-dashboard').classList.contains('on')) renderDash();
+    if(document.getElementById('pg-projeto').classList.contains('on')) renderProjeto();
+  });
+  // Mural em tempo real
+  db.collection('mural').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.mural = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-mural').classList.contains('on')) renderMural();
+  });
+  // Atividades em tempo real
+  db.collection('atividades').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.atividades = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-atividades').classList.contains('on')) renderAtiv();
+  });
+  // Equipamentos
+  db.collection('equipamentos').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.equip = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-equipamentos').classList.contains('on')) renderEquip();
+  });
+  // Alunos
+  db.collection('alunos').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.alunos = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-alunos').classList.contains('on')) renderAlunos();
+  });
+  // Orçamento (único documento)
+  db.collection('config').doc('orcamento').onSnapshot(doc=>{
+    if(doc.exists) CACHE.orc = doc.data().secoes;
+    if(document.getElementById('pg-orcamento').classList.contains('on')) renderOrc();
+  });
+  // Relatórios do usuário
+  db.collection('relatorios').where('uid','==',auth.currentUser.uid).orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.relatorios = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-relatorio').classList.contains('on')) renderHistorico();
+  });
+  // Metas do usuário
+  db.collection('metas').where('uid','==',auth.currentUser.uid).orderBy('criadoEm','desc').onSnapshot(snap=>{
+    CACHE.metas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-metas').classList.contains('on')) renderMetas();
+    if(document.getElementById('pg-dashboard').classList.contains('on')) renderDash();
+  });
+}
+
+/* ══════════════════════════════════════
+   CACHE LOCAL (rápido para renders)
+══════════════════════════════════════ */
+const CACHE={ alertas:[], producoes:[], mural:[], atividades:[], equip:[], alunos:[], orc:DEF_ORC(), relatorios:[], metas:[] };
+
+function DEF_ORC(){
+  return [
+    {sec:'ATIVIDADES DE CAMPO',items:[
+      {desc:'Diárias e deslocamentos (combustível, hospedagem, alimentação)',v26:40000,v27:42000,v28:44000},
+      {desc:'Aluguel de embarcações motorizadas (Rio Paraguai e tributários)',v26:42000,v27:42000,v28:41000},
+      {desc:'Material de coleta de campo (redes, puçás, armadilhas, in situ)',v26:22000,v27:10000,v28:8000},
+      {desc:'Câmaras de fluxo de GEE (CO₂, CH₄, N₂O – zonas ripárias)',v26:28000,v27:6000,v28:6000},
+      {desc:'Manutenção de estações meteorológicas e fluviométricas',v26:15000,v27:15000,v28:15000},
+    ]},
+    {sec:'ANÁLISES LABORATORIAIS',items:[
+      {desc:'Análises físico-químicas da água (nutrientes, pH, OD, pesticidas)',v26:35000,v27:35000,v28:35000},
+      {desc:'Análises de mercúrio e metais pesados (CV-AAS/ICP-MS, CRM)',v26:20000,v27:20000,v28:20000},
+      {desc:'Análises de gases de efeito estufa (cromatografia gasosa)',v26:17000,v27:17000,v28:16000},
+      {desc:'Análises biológicas (DNA, microscopia, HPLC para pigmentos)',v26:34000,v27:34000,v28:32000},
+    ]},
+    {sec:'TECNOLOGIA DA INFORMAÇÃO',items:[
+      {desc:'Infraestrutura computacional – GPU para modelos deep learning',v26:20000,v27:5000,v28:5000},
+      {desc:'Desenvolvimento de plataformas digitais',v26:0,v27:0,v28:0},
+    ]},
+    {sec:'CUSTEIO GERAL',items:[
+      {desc:'Material de consumo geral (EPI, frascos, escritório, descartáveis)',v26:8000,v27:8000,v28:8000},
+      {desc:'Publicações e traduções (APC periódicos OA Qualis A1–B1)',v26:20000,v27:22000,v28:24000},
+      {desc:'Eventos e capacitações (congressos 14 docentes, 3 workshops anuais)',v26:35000,v27:38000,v28:40000},
+    ]},
+  ];
+}
+
+/* ══════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════ */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3200);}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function pctC(p){return p>=70?'g':p>=40?'':'a';}
+function fmtBRL(n){return'R$ '+Math.round(n||0).toLocaleString('pt-BR');}
+function ts(){return firebase.firestore.FieldValue.serverTimestamp();}
+function uid(){return CUR_USER?CUR_USER.uid:'anon';}
+function uname(){return CUR_USER?(CUR_USER.displayName||CUR_USER.email.split('@')[0]):'Anônimo';}
+function tagSt(s){
+  if(s==='concluida')return '<span class="tag t-g">Concluída</span>';
+  if(s==='andamento')return '<span class="tag t-b">Em andamento</span>';
+  return '<span class="tag t-gr">Pendente</span>';
+}
+
+function handleFileSelect(input,pid){
+  const f=input.files[0];
+  if(f){document.getElementById(pid).textContent='✓ '+f.name;document.getElementById(pid).style.color='var(--g6)';}
+}
+function uploadFile(inputId,labelId){document.getElementById(inputId).click();}
+
+/* Upload desabilitado (plano gratuito Firebase não inclui Storage)
+   Os dados textuais são salvos normalmente no Firestore */
+async function uploadToStorage(inputId, path){
+  // Storage não disponível no plano gratuito
+  // Retorna null — os dados textuais são salvos normalmente
+  return null;
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+function go(id, btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.sn-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  else document.querySelectorAll('.sn-btn').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('on');
+  });
+  const renders={dashboard:renderDash,mural:renderMural,metas:renderMetas,producao:()=>renderProd(),atividades:renderAtiv,relatorio:renderRelatorio,orcamento:renderOrc,equipamentos:renderEquip,alunos:renderAlunos,equipe:renderEquipe,projeto:renderProjeto};
+  if(renders[id]) renders[id]();
+}
+
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+function renderDash(){
+  const metas=CACHE.metas.filter(m=>m.status!=='concluida').slice(0,4);
+  const prods=CACHE.producoes.slice(0,3);
+  const alerts=CACHE.alertas.filter(a=>!a.lido).slice(0,4);
+  document.getElementById('dash-met').innerHTML=`
+    <div class="met"><div class="lb">Minhas metas ativas</div><div class="vl">${CACHE.metas.filter(m=>m.status!=='concluida').length}</div><div class="sb">em andamento / pendentes</div></div>
+    <div class="met g"><div class="lb">Produções do projeto</div><div class="vl">${CACHE.producoes.length}</div><div class="sb">cadastradas por todos</div></div>
+    <div class="met"><div class="lb">Alertas pendentes</div><div class="vl">${alerts.length}</div><div class="sb">visíveis a todos</div></div>
+    <div class="met a"><div class="lb">Atividades registradas</div><div class="vl">${CACHE.atividades.length}</div><div class="sb">do projeto</div></div>`;
+  document.getElementById('dash-metas').innerHTML=metas.length?metas.map(m=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span style="font-size:12px;font-weight:700;color:var(--b9);flex:1;">${m.desc}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--b6);margin-left:8px;">${m.pct||0}%</span>
+      </div>
+      <div class="pbar"><div class="pfill ${pctC(m.pct||0)}" style="width:${m.pct||0}%"></div></div>
+    </div>`).join(''):'<div style="color:var(--gray);font-size:12px;padding:.5rem 0;">Nenhuma meta cadastrada ainda. <a href="#" onclick="go(\'metas\',null);return false;" style="color:var(--b6);">Criar meta</a></div>';
+  document.getElementById('dash-al').innerHTML=alerts.length?alerts.map(a=>`
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:.5px solid #EEF5FF;">
+      <div style="font-size:14px;flex-shrink:0;">${a.tipo.split(' ')[0]}</div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--b9);">${a.desc}</div>
+      <div style="font-size:10px;color:var(--gray);">${a.data} · ${a.prio}</div></div>
+    </div>`).join(''):'<div style="color:var(--gray);font-size:12px;padding:.5rem 0;">Sem alertas pendentes.</div>';
+  document.getElementById('dash-proj').innerHTML=`
+    <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 1</span><span style="color:var(--b6)">54%</span></div><div class="pbar"><div class="pfill" style="width:54%"></div></div></div>
+    <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 2</span><span style="color:var(--g6)">61%</span></div><div class="pbar"><div class="pfill g" style="width:61%"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 3</span><span style="color:var(--a6)">38%</span></div><div class="pbar"><div class="pfill a" style="width:38%"></div></div></div>`;
+  document.getElementById('dash-prods').innerHTML=prods.length?`
+    <table class="tbl"><thead><tr><th>Título</th><th>Tipo</th><th>Pesquisador</th><th>Status</th></tr></thead>
+    <tbody>${prods.map(p=>`<tr><td style="font-weight:600;max-width:200px;">${p.titulo}</td><td><span class="tag t-b">${p.tipo}</span></td><td style="font-size:11px;color:var(--gray);">${p.autor||''}</td><td>${p.status==='Publicado'?'<span class="tag t-g">'+p.status+'</span>':'<span class="tag t-a">'+p.status+'</span>'}</td></tr>`).join('')}</tbody>
+    </table>`:'<div style="color:var(--gray);font-size:12px;padding:.5rem 0;">Nenhuma produção cadastrada ainda.</div>';
+}
+
+/* ══════════════════════════════════════
+   MURAL
+══════════════════════════════════════ */
+function renderMural(){
+  const el=document.getElementById('mural-grid');
+  if(!CACHE.mural.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--gray);padding:2rem;">O mural está vazio. Publique a primeira novidade do projeto!</div>';return;}
+  el.innerHTML=CACHE.mural.map(m=>`
+    <div class="mc">
+      <div class="mc-img">${m.fotoUrl?`<img src="${m.fotoUrl}" alt="foto">`:(m.emoji||'🎉')}</div>
+      <div class="mc-bd">
+        <div class="mc-tag">${m.autor||'Equipe'} · ${m.data||''}</div>
+        <div class="mc-ti">${m.titulo}</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:5px;line-height:1.5;">${(m.txt||'').substring(0,120)}${(m.txt||'').length>120?'...':''}</div>
+        ${m.uid===uid()?`<button class="btn btn-d btn-s" style="margin-top:8px;" onclick="delDoc('mural','${m.id}')">Remover</button>`:''}
+      </div>
+    </div>`).join('');
+}
+async function addMural(){
+  const tit=document.getElementById('mu-tit').value.trim();
+  if(!tit){toast('Informe o título.');return;}
+  let fotoUrl=null;
+  try{ fotoUrl=await uploadToStorage('mu-file','mural'); }catch(e){}
+  await db.collection('mural').add({titulo:tit,txt:document.getElementById('mu-txt').value,emoji:document.getElementById('mu-em').value||'🎉',fotoUrl,autor:uname(),uid:uid(),data:new Date().toLocaleDateString('pt-BR',{month:'short',year:'numeric'}),criadoEm:ts()});
+  closeM('m-mural');document.getElementById('mu-tit').value='';document.getElementById('mu-txt').value='';toast('Publicado no mural!');
+}
+
+/* ══════════════════════════════════════
+   METAS
+══════════════════════════════════════ */
+function renderMetas(filter='todas'){
+  const list=filter==='todas'?CACHE.metas:CACHE.metas.filter(m=>m.status===filter);
+  const el=document.getElementById('metas-list');
+  if(!list.length){el.innerHTML='<div style="text-align:center;color:var(--gray);padding:2rem;">Nenhuma meta encontrada.</div>';return;}
+  el.innerHTML=list.map(m=>`
+    <div class="card" style="padding:1rem;margin-bottom:.6rem;" data-st="${m.status}">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:var(--b9);margin-bottom:5px;">${m.desc}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+            ${tagSt(m.status)}<span class="tag t-gr">${m.cat||''}</span>
+            ${m.prazo?`<span class="tag t-gr">Prazo: ${new Date(m.prazo).toLocaleDateString('pt-BR')}</span>`:''}
+          </div>
+          <div class="pbar"><div class="pfill ${pctC(m.pct||0)}" style="width:${m.pct||0}%"></div></div>
+          <div style="font-size:10px;color:var(--gray);margin-top:3px;">${m.pct||0}% concluído</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;">
+          <input type="range" min="0" max="100" value="${m.pct||0}" style="width:90px;" oninput="updMetaPct('${m.id}',this.value)">
+          <select style="font-size:10px;border:.5px solid var(--bd);border-radius:6px;padding:2px 5px;background:var(--b0);" onchange="updMetaSt('${m.id}',this.value)">
+            <option ${m.status==='pendente'?'selected':''} value="pendente">Pendente</option>
+            <option ${m.status==='andamento'?'selected':''} value="andamento">Em andamento</option>
+            <option ${m.status==='concluida'?'selected':''} value="concluida">Concluída</option>
+          </select>
+          <button class="btn btn-d btn-s" onclick="delDoc('metas','${m.id}')">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function filterMetas(f,btn){
+  document.querySelectorAll('#meta-fil button').forEach(b=>{b.className='btn btn-o btn-s';});
+  btn.className='btn btn-p btn-s';renderMetas(f);
+}
+function updMetaPct(id,v){db.collection('metas').doc(id).update({pct:parseInt(v)});}
+function updMetaSt(id,v){db.collection('metas').doc(id).update({status:v,pct:v==='concluida'?100:undefined});}
+async function addMeta(){
+  const desc=document.getElementById('mt-desc').value.trim();
+  if(!desc){toast('Descreva a meta.');return;}
+  await db.collection('metas').add({desc,status:'pendente',pct:0,cat:document.getElementById('mt-cat').value,prazo:document.getElementById('mt-prazo').value,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-meta');document.getElementById('mt-desc').value='';toast('Meta criada!');
+}
+
+/* ══════════════════════════════════════
+   PRODUÇÕES
+══════════════════════════════════════ */
+function renderProd(filter='todas'){
+  const list=filter==='todas'?CACHE.producoes:CACHE.producoes.filter(p=>p.tipo===filter);
+  const icons={artigo:'🔵',capitulo:'📗',software:'💻',resumo:'📋',relatorio:'📑',ebook:'📘'};
+  document.getElementById('prod-tbody').innerHTML=list.length?list.map(p=>`
+    <tr data-tipo="${p.tipo}">
+      <td style="max-width:260px;">
+        <div style="font-weight:700;color:var(--b9);font-size:12px;">${p.titulo}</div>
+        <div style="font-size:10px;color:var(--gray);">${p.veiculo||''} ${p.ano?'· '+p.ano:''}</div>
+        ${p.doi?`<a href="${p.doi}" target="_blank" style="font-size:10px;color:var(--b6);">DOI/URL ↗</a>`:''}
+        ${p.arquivoUrl?`<a href="${p.arquivoUrl}" target="_blank" style="font-size:10px;color:var(--g6);margin-left:6px;">📄 Arquivo</a>`:''}
+      </td>
+      <td><span class="tag t-b">${(icons[p.tipo]||'📄')+' '+p.tipo}</span></td>
+      <td style="font-size:11px;color:var(--gray);max-width:120px;">${p.autores||p.autor||''}</td>
+      <td>${p.status==='Publicado'?'<span class="tag t-g">Publicado</span>':p.status==='Aceito'?'<span class="tag t-b">Aceito</span>':'<span class="tag t-a">'+p.status+'</span>'}</td>
+      <td style="font-size:10px;">${p.linha||''}</td>
+      <td>${p.uid===uid()?`<button class="btn btn-d btn-s" onclick="delDoc('producoes','${p.id}')">✕</button>`:''}</td>
+    </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:1.5rem;">Nenhuma produção cadastrada.</td></tr>';
+}
+function filterProd(f,btn){
+  document.querySelectorAll('#prod-fil button').forEach(b=>{b.className='btn btn-o btn-s';});
+  btn.className='btn btn-p btn-s';renderProd(f);
+}
+async function addProd(){
+  const tit=document.getElementById('pd-tit').value.trim();
+  if(!tit){toast('Informe o título.');return;}
+  let arquivoUrl=null;
+  try{ arquivoUrl=await uploadToStorage('pd-file','producoes'); }catch(e){}
+  await db.collection('producoes').add({tipo:document.getElementById('pd-tipo').value,titulo:tit,autores:document.getElementById('pd-aut').value,ano:parseInt(document.getElementById('pd-ano').value),veiculo:document.getElementById('pd-vei').value,status:document.getElementById('pd-sta').value,doi:document.getElementById('pd-doi').value,linha:document.getElementById('pd-lin').value,arquivoUrl,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-prod');document.getElementById('pd-tit').value='';toast('Produção cadastrada!');
+}
+
+/* ══════════════════════════════════════
+   ATIVIDADES
+══════════════════════════════════════ */
+function renderAtiv(){
+  const el=document.getElementById('ativ-grid');
+  if(!CACHE.atividades.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--gray);padding:2rem;">Nenhuma atividade registrada ainda.</div>';return;}
+  el.innerHTML=CACHE.atividades.map(a=>`
+    <div class="mc">
+      <div class="mc-img">${a.fotoUrl?`<img src="${a.fotoUrl}" alt="foto">`:(a.emoji||'📸')}</div>
+      <div class="mc-bd">
+        <div class="mc-tag">${a.tipo} · ${a.data||''}</div>
+        <div class="mc-ti">${a.titulo}</div>
+        <div class="mc-mt">📍 ${a.local||''}</div>
+        ${a.alunos?`<div class="mc-mt">🎓 ${a.alunos}</div>`:''}
+        <div style="font-size:11px;color:var(--gray);margin-top:5px;line-height:1.5;">${(a.desc||'').substring(0,100)}</div>
+        <div style="font-size:10px;color:var(--gray);margin-top:5px;">por ${a.autor||''}</div>
+        ${a.uid===uid()?`<button class="btn btn-d btn-s" style="margin-top:7px;" onclick="delDoc('atividades','${a.id}')">Remover</button>`:''}
+      </div>
+    </div>`).join('');
+}
+async function addAtiv(){
+  const tit=document.getElementById('at-tit').value.trim();
+  if(!tit){toast('Informe o título.');return;}
+  const emojiMap={'campo':'🏕','laboratorial':'🔬','reunião':'📅','orientação':'🎓','restauração':'🌿','comunitária':'🤝','científico':'📚'};
+  const tipo=document.getElementById('at-tip').value;
+  const emoji=Object.keys(emojiMap).find(k=>tipo.toLowerCase().includes(k))||'📸';
+  let fotoUrl=null;
+  try{ fotoUrl=await uploadToStorage('at-file','atividades'); }catch(e){}
+  await db.collection('atividades').add({tipo,titulo:tit,data:document.getElementById('at-dat').value||new Date().toLocaleDateString('pt-BR'),local:document.getElementById('at-loc').value,alunos:document.getElementById('at-alu').value,desc:document.getElementById('at-des').value,emoji,fotoUrl,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-ativ');document.getElementById('at-tit').value='';toast('Atividade registrada!');
+}
+
+/* ══════════════════════════════════════
+   RELATÓRIO
+══════════════════════════════════════ */
+function renderRelatorio(){
+  document.getElementById('rel-metas-chk').innerHTML=CACHE.metas.map(m=>`
+    <label style="display:flex;gap:7px;align-items:flex-start;font-size:12px;cursor:pointer;">
+      <input type="checkbox" style="margin-top:2px;accent-color:var(--b6);"> ${m.desc}
+    </label>`).join('');
+  renderHistorico();
+}
+function renderHistorico(){
+  const el=document.getElementById('hist-list');
+  if(!CACHE.relatorios.length){el.innerHTML='<div style="color:var(--gray);font-size:12px;padding:.5rem 0;">Nenhum relatório enviado ainda.</div>';return;}
+  el.innerHTML=CACHE.relatorios.map(r=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid #EEF5FF;">
+      <div style="width:9px;height:9px;border-radius:50%;background:var(--g6);flex-shrink:0;"></div>
+      <div style="flex:1;"><div style="font-weight:700;color:var(--b9);">Relatório de ${r.mes}</div>
+        <div style="font-size:10px;color:var(--gray);">Enviado por ${r.autor} · ${r.dataEnvio||''}</div>
+        ${r.texto?`<div style="font-size:11px;color:var(--gray);margin-top:3px;">${r.texto.substring(0,80)}...</div>`:''}
+      </div>
+      <span class="tag t-g">${r.status||'Enviado'}</span>
+    </div>`).join('');
+}
+async function submitRel(){
+  const v=document.getElementById('rel-ativ').value.trim();
+  if(!v){toast('Descreva as atividades do mês.');return;}
+  let arquivoUrl=null;
+  try{ arquivoUrl=await uploadToStorage('rel-file','relatorios'); }catch(e){}
+  await db.collection('relatorios').add({mes:document.getElementById('rel-mes').value,linha:document.getElementById('rel-linha').value,texto:v,dificuldades:document.getElementById('rel-dif').value,previsao:document.getElementById('rel-prev').value,arquivoUrl,status:'Enviado',uid:uid(),autor:uname(),dataEnvio:new Date().toLocaleDateString('pt-BR'),criadoEm:ts()});
+  document.getElementById('rel-ativ').value='';document.getElementById('rel-dif').value='';document.getElementById('rel-prev').value='';
+  toast('Relatório enviado com sucesso!');
+}
+
+/* ══════════════════════════════════════
+   ORÇAMENTO
+══════════════════════════════════════ */
+function renderOrc(){
+  const el=document.getElementById('orc-body');
+  el.innerHTML=CACHE.orc.map((s,si)=>`
+    <div class="sec-hd">${s.sec}</div>
+    ${s.items.map((it,ii)=>`
+      <div class="orc-row">
+        <input class="orc-inp orc-desc" value="${it.desc}" onchange="orcCh(${si},${ii},'desc',this.value)">
+        <input class="orc-inp" type="number" value="${it.v26}" oninput="orcCh(${si},${ii},'v26',+this.value)">
+        <input class="orc-inp" type="number" value="${it.v27}" oninput="orcCh(${si},${ii},'v27',+this.value)">
+        <input class="orc-inp" type="number" value="${it.v28}" oninput="orcCh(${si},${ii},'v28',+this.value)">
+        <div class="orc-tot" id="orc-t-${si}-${ii}">${fmtBRL((it.v26||0)+(it.v27||0)+(it.v28||0))}</div>
+        <button class="btn btn-d btn-s" onclick="orcDel(${si},${ii})">✕</button>
+      </div>`).join('')}`).join('');
+  updateOrcTotals();
+}
+function orcCh(si,ii,k,v){
+  CACHE.orc[si].items[ii][k]=v;
+  const it=CACHE.orc[si].items[ii];
+  const el=document.getElementById(`orc-t-${si}-${ii}`);
+  if(el) el.textContent=fmtBRL((it.v26||0)+(it.v27||0)+(it.v28||0));
+  updateOrcTotals();
+}
+function orcDel(si,ii){CACHE.orc[si].items.splice(ii,1);renderOrc();}
+function addOrcItem(){CACHE.orc[0].items.push({desc:'Novo item',v26:0,v27:0,v28:0});renderOrc();}
+function updateOrcTotals(){
+  let t26=0,t27=0,t28=0;
+  CACHE.orc.forEach(s=>s.items.forEach(it=>{t26+=it.v26||0;t27+=it.v27||0;t28+=it.v28||0;}));
+  document.getElementById('orc-tot').textContent=fmtBRL(t26+t27+t28);
+  document.getElementById('orc-sub').textContent=`2026: ${fmtBRL(t26)}  ·  2027: ${fmtBRL(t27)}  ·  2028: ${fmtBRL(t28)}`;
+}
+async function saveOrc(){
+  await db.collection('config').doc('orcamento').set({secoes:CACHE.orc,atualizadoEm:ts(),atualizadoPor:uname()});
+  toast('Orçamento salvo para todos!');
+}
+
+/* ══════════════════════════════════════
+   EQUIPAMENTOS
+══════════════════════════════════════ */
+function renderEquip(){
+  const el=document.getElementById('equip-grid');
+  if(!CACHE.equip.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--gray);padding:2rem;">Nenhum equipamento cadastrado.</div>';return;}
+  el.innerHTML=CACHE.equip.map(e=>`
+    <div class="eq-card">
+      <div style="font-size:24px;margin-bottom:5px;">${e.cat.split(' ')[0]}</div>
+      <div style="font-weight:800;color:var(--b9);font-size:12px;">${e.nm}</div>
+      <div style="font-size:10px;color:var(--gray);margin-top:2px;">${e.cat} · ${e.pat||''}</div>
+      <div style="font-size:10px;color:var(--gray);">Resp.: ${e.resp||''}</div>
+      <div style="font-size:10px;font-weight:700;margin-top:6px;color:${e.disp&&e.disp.includes('Disponível')?'var(--g6)':'var(--r6)'};">${e.disp||''}</div>
+      ${e.obs?`<div style="font-size:10px;color:var(--gray);margin-top:6px;border-top:.5px solid var(--bd);padding-top:6px;">${e.obs}</div>`:''}
+      ${e.uid===uid()?`<button class="btn btn-d btn-s" style="margin-top:8px;" onclick="delDoc('equipamentos','${e.id}')">Remover</button>`:''}
+    </div>`).join('');
+}
+async function addEquip(){
+  const nm=document.getElementById('eq-nm').value.trim();
+  if(!nm){toast('Informe o nome do equipamento.');return;}
+  await db.collection('equipamentos').add({nm,cat:document.getElementById('eq-cat').value,pat:document.getElementById('eq-pat').value,resp:document.getElementById('eq-res').value,disp:document.getElementById('eq-dis').value,obs:document.getElementById('eq-obs').value,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-equip');document.getElementById('eq-nm').value='';toast('Equipamento cadastrado!');
+}
+
+/* ══════════════════════════════════════
+   ALUNOS
+══════════════════════════════════════ */
+function renderAlunos(){
+  const el=document.getElementById('alunos-list');
+  if(!CACHE.alunos.length){el.innerHTML='<div style="text-align:center;color:var(--gray);padding:2rem;">Nenhum aluno cadastrado.</div>';return;}
+  el.innerHTML=CACHE.alunos.map(a=>{
+    const ini=(a.nm||'').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return `<div class="aln-card">
+      <div class="aln-av">${ini}</div>
+      <div style="flex:1;">
+        <div style="font-weight:800;color:var(--b9);">${a.nm}</div>
+        <div style="font-size:11px;color:var(--b6);margin:2px 0;">${a.tit||'Título em definição'}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;">
+          <span class="tag t-b">${(a.linha||'').split('–')[0].trim()}</span>
+          <span class="tag t-gr">Entrada: ${a.entrada||''}</span>
+          <span class="tag t-gr">Defesa: ${a.defesa||''}</span>
+          <span class="tag ${a.status&&a.status.includes('Concluído')?'t-g':'t-b'}">${a.status||''}</span>
+        </div>
+        ${a.obs?`<div style="font-size:10px;color:var(--gray);margin-top:4px;">${a.obs}</div>`:''}
+        <div style="font-size:10px;color:var(--gray);margin-top:3px;">Cadastrado por ${a.autor||''}</div>
+      </div>
+      ${a.uid===uid()?`<button class="btn btn-d btn-s" onclick="delDoc('alunos','${a.id}')">✕</button>`:''}
+    </div>`;}).join('');
+}
+async function addAluno(){
+  const nm=document.getElementById('aln-nm').value.trim();
+  if(!nm){toast('Informe o nome do aluno.');return;}
+  await db.collection('alunos').add({nm,mat:document.getElementById('aln-mat').value,tit:document.getElementById('aln-tit').value,linha:document.getElementById('aln-lin').value,entrada:document.getElementById('aln-ent').value,defesa:document.getElementById('aln-def').value,status:document.getElementById('aln-sta').value,obs:document.getElementById('aln-obs').value,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-aluno');document.getElementById('aln-nm').value='';toast('Aluno cadastrado!');
+}
+
+/* ══════════════════════════════════════
+   EQUIPE
+══════════════════════════════════════ */
+const PROFS=[
+  {sg:'AN',nm:'Amintas Nazareth Rossete',rl:'Coordenador Geral',ll:'L1/L3',prog:48},
+  {sg:'AB',nm:'Adley Bergson G. de Abreu',rl:'Pesquisador',ll:'L2',prog:35},
+  {sg:'AG',nm:'Alexandre Gonçalves Porto',rl:'Pesquisador',ll:'L2/L3',prog:42},
+  {sg:'AM',nm:'Anderson M. do Amaral',rl:'Pesquisador',ll:'L1/L3',prog:30},
+  {sg:'CC',nm:'Claumir Cesar Muniz',rl:'Pesquisador',ll:'L2/L3',prog:72},
+  {sg:'EF',nm:'Érico Fernando O. Martins',rl:'Pesquisador',ll:'L1/L3',prog:55},
+  {sg:'ES',nm:'Ernandes Sobreira Oliveira Jr.',rl:'Pesquisador',ll:'L1/L2',prog:68},
+  {sg:'FA',nm:'Fátima A. da Silva Iocca',rl:'Pesquisadora',ll:'L3',prog:40},
+  {sg:'FL',nm:'Francisco Lledo dos Santos',rl:'Pesquisador',ll:'L1',prog:60},
+  {sg:'RZ',nm:'Rodrigo Bruno Zanin',rl:'Pesquisador',ll:'L1/L3',prog:58},
+  {sg:'SA',nm:'Solange A. Arrolho da Silva',rl:'Pesquisadora',ll:'L3',prog:28},
+  {sg:'SK',nm:'Solange Kimie I. Castrillon',rl:'Pesquisadora',ll:'L3',prog:45},
+  {sg:'TM',nm:'Tadeu Miranda de Queiroz',rl:'Pesquisador',ll:'L1/L2',prog:65},
+  {sg:'WL',nm:'Wilkinson Lopes Lázaro',rl:'Pesquisador',ll:'L1/L2',prog:50},
+];
+function renderEquipe(){
+  document.getElementById('equipe-grid').innerHTML=PROFS.map(p=>`
+    <div class="card" style="padding:1rem;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+        <div class="av-sm" style="width:36px;height:36px;font-size:11px;">${p.sg}</div>
+        <div><div style="font-weight:800;color:var(--b9);font-size:12px;">${p.nm}</div>
+        <div style="font-size:10px;color:var(--b6);">${p.ll} · ${p.rl}</div></div>
+      </div>
+      <div class="pbar"><div class="pfill ${pctC(p.prog)}" style="width:${p.prog}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-top:3px;">
+        <span>${p.prog}%</span>
+        <span>${CACHE.alunos.filter(a=>a.autor&&a.autor.includes(p.nm.split(' ')[0])).length} aluno(s)</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════
+   PROJETO GERAL
+══════════════════════════════════════ */
+function renderProjeto(){
+  document.getElementById('proj-met').innerHTML=`
+    <div class="met"><div class="lb">Produções cadastradas</div><div class="vl">${CACHE.producoes.length}</div><div class="sb">por todos</div></div>
+    <div class="met g"><div class="lb">Alunos ativos</div><div class="vl">${CACHE.alunos.length}</div><div class="sb">dissertações</div></div>
+    <div class="met"><div class="lb">Equipamentos</div><div class="vl">${CACHE.equip.length}</div><div class="sb">cadastrados</div></div>
+    <div class="met a"><div class="lb">Atividades registradas</div><div class="vl">${CACHE.atividades.length}</div><div class="sb">do projeto</div></div>`;
+  document.getElementById('proj-docs').innerHTML=PROFS.map(p=>`
+    <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+      <div class="av-sm">${p.sg}</div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;">
+          <span>${p.nm.split(' ').slice(0,2).join(' ')}</span>
+          <span style="color:${p.prog>=70?'var(--g6)':p.prog>=40?'var(--b6)':'var(--a6)'};">${p.prog}%</span>
+        </div>
+        <div class="pbar"><div class="pfill ${pctC(p.prog)}" style="width:${p.prog}%"></div></div>
+      </div>
+    </div>`).join('');
+  const prods=[
+    {l:'Artigos',v:CACHE.producoes.filter(p=>p.tipo==='artigo').length,t:24},
+    {l:'Capítulos de livro',v:CACHE.producoes.filter(p=>p.tipo==='capitulo').length,t:14},
+    {l:'Resumos em congressos',v:CACHE.producoes.filter(p=>p.tipo==='resumo').length,t:42},
+    {l:'Alunos matriculados',v:CACHE.alunos.length,t:30},
+    {l:'Atividades registradas',v:CACHE.atividades.length,t:60},
+  ];
+  document.getElementById('proj-prods').innerHTML=prods.map(p=>`
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;">
+        <span>${p.l}</span><span style="color:var(--b6);">${p.v} / ${p.t}</span>
+      </div>
+      <div class="pbar"><div class="pfill" style="width:${Math.min(100,Math.round((p.v/p.t)*100))}%"></div></div>
+    </div>`).join('');
+  document.getElementById('proj-linhas').innerHTML=`
+    <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 1</span><span style="color:var(--b6)">54%</span></div><div class="pbar"><div class="pfill" style="width:54%"></div></div></div>
+    <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 2</span><span style="color:var(--g6)">61%</span></div><div class="pbar"><div class="pfill g" style="width:61%"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;"><span>Linha 3</span><span style="color:var(--a6)">38%</span></div><div class="pbar"><div class="pfill a" style="width:38%"></div></div></div>`;
+}
+
+/* ══════════════════════════════════════
+   ALERTAS
+══════════════════════════════════════ */
+function renderAlertPanel(){
+  const n=CACHE.alertas.filter(a=>!a.lido).length;
+  const bn=document.getElementById('bell-n');
+  bn.textContent=n; bn.style.display=n?'flex':'none';
+  const prio={Alta:'var(--r6)',Média:'var(--a6)',Baixa:'var(--g6)'};
+  document.getElementById('ap-list').innerHTML=CACHE.alertas.length?CACHE.alertas.map(a=>`
+    <div class="al-item" style="${a.lido?'opacity:.5':''}">
+      <div class="al-dot" style="background:${prio[a.prio]||'var(--b4)'}"></div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:700;color:var(--b9);">${a.tipo}</div>
+        <div style="font-size:11px;color:var(--gray);">${a.desc}</div>
+        <div style="font-size:10px;color:var(--gray);">${a.data} · ${a.prio} · por ${a.autor||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        ${!a.lido?`<button class="btn btn-g btn-s" onclick="marcarAlerta('${a.id}')">✓</button>`:''}
+        ${a.uid===uid()?`<button class="btn btn-d btn-s" onclick="delDoc('alertas','${a.id}')">✕</button>`:''}
+      </div>
+    </div>`).join(''):'<div style="text-align:center;color:var(--gray);padding:1rem;">Sem alertas.</div>';
+}
+function toggleAlerts(){document.getElementById('ap').classList.toggle('open');renderAlertPanel();}
+async function marcarAlerta(id){await db.collection('alertas').doc(id).update({lido:true});}
+async function addAlerta(){
+  const desc=document.getElementById('al-des').value.trim();
+  if(!desc){toast('Descreva o alerta.');return;}
+  await db.collection('alertas').add({tipo:document.getElementById('al-tip').value,desc,data:document.getElementById('al-dat').value||new Date().toLocaleDateString('pt-BR'),prio:document.getElementById('al-pri').value,lido:false,uid:uid(),autor:uname(),criadoEm:ts()});
+  closeM('m-alerta');document.getElementById('al-des').value='';toast('Alerta criado para toda a equipe!');
+}
+
+/* ══════════════════════════════════════
+   GENERIC DELETE
+══════════════════════════════════════ */
+async function delDoc(col,id){
+  if(!confirm('Remover este item?')) return;
+  await db.collection(col).doc(id).delete();
+  toast('Removido.');
+}
+
+/* ══════════════════════════════════════
+   CLOSE MODALS ON BG CLICK
+══════════════════════════════════════ */
+document.querySelectorAll('.mb').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+document.addEventListener('click',e=>{
+  const ap=document.getElementById('ap');
+  const bell=document.querySelector('.bell');
+  if(ap&&!ap.contains(e.target)&&bell&&!bell.contains(e.target)) ap.classList.remove('open');
+});
+</script>
+</body>
+</html>
