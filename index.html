@@ -744,13 +744,7 @@ const FIREBASE_CONFIG = {
 /* ══════════════════════════════════════
    INIT FIREBASE
 ══════════════════════════════════════ */
-// Safety check — retry if Firebase not ready yet
-(function waitForFirebase(){
-  if(typeof firebase === "undefined"){
-    setTimeout(waitForFirebase, 50);
-    return;
-  }
-  firebase.initializeApp(FIREBASE_CONFIG);
+firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 const storage = firebase.storage();
@@ -1370,7 +1364,6 @@ document.addEventListener('click',e=>{
   const bell=document.querySelector('.bell');
   if(ap&&!ap.contains(e.target)&&bell&&!bell.contains(e.target)) ap.classList.remove('open');
 });
-})(); // end waitForFirebase
 </script>
 </body>
 </html>
