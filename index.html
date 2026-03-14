@@ -759,28 +759,17 @@ function loginGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('email');
   provider.addScope('profile');
-
-  // Tenta popup primeiro; se bloqueado, usa redirect
-  auth.signInWithPopup(provider)
-    .then(result => {
-      console.log('Login popup OK:', result.user.email);
-    })
-    .catch(e => {
-      console.warn('Popup bloqueado ou falhou, tentando redirect...', e.code);
-      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request'){
-        // Fallback para redirect
-        auth.signInWithRedirect(provider).catch(e2=>{
-          const el = document.getElementById('login-error');
-          if(el){ el.style.display='block'; el.textContent='Erro: '+e2.message; }
-        });
-      } else {
-        const el = document.getElementById('login-error');
-        if(el){ el.style.display='block'; el.textContent='Erro: '+e.message; }
-      }
+  // Usa redirect — funciona em desktop e mobile sem precisar de popup
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(()=> auth.signInWithRedirect(provider))
+    .catch(e=>{
+      const el = document.getElementById('login-error');
+      if(el){ el.style.display='block'; el.textContent='Erro ao iniciar login: '+e.message; }
     });
 }
 
 // Captura resultado do redirect (caso tenha usado fallback)
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 auth.getRedirectResult()
   .then(result=>{
     if(result && result.user){
