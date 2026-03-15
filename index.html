@@ -663,9 +663,34 @@ function ligarFirestore(){
     MURAL=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
     renderMural();renderInicio();
   },function(e){console.warn('mural',e.code);});
-  // USUARIOS
+  // USUARIOS — deduplicate by email, keep newest
   db.collection('usuarios').onSnapshot(function(s){
-    USUARIOS=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    var todos=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    // Deduplicate: keep one per email (latest ts)
+    var vistos={};
+    var duplicados=[];
+    todos.forEach(function(u){
+      var key=(u.email||u.fid).toLowerCase();
+      if(!vistos[key]){
+        vistos[key]=u;
+      } else {
+        // Keep newer, delete older
+        var existing=vistos[key];
+        var uTs=u.ts?u.ts.seconds||0:0;
+        var eTs=existing.ts?existing.ts.seconds||0:0;
+        if(uTs>eTs){
+          duplicados.push(existing.fid);
+          vistos[key]=u;
+        } else {
+          duplicados.push(u.fid);
+        }
+      }
+    });
+    // Delete duplicates silently
+    duplicados.forEach(function(fid){
+      db.collection('usuarios').doc(fid).delete().catch(function(){});
+    });
+    USUARIOS=Object.values(vistos);
     renderEquipe();renderInicio();
   },function(e){console.warn('usuarios',e.code);});
   // PRODUCOES
