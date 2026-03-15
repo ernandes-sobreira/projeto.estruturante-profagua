@@ -245,31 +245,72 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:#EE
     </div>
     <div class="login-title">PROFÁGUA</div>
     <div class="login-sub">Projeto Estruturante 2026–2028 · UNEMAT</div>
-    <div class="login-desc">
-      Plataforma colaborativa de monitoramento.<br>
-      Digite seu e-mail institucional para entrar.
+
+    <!-- PASSO 1: E-mail -->
+    <div id="step-email">
+      <div class="login-desc">Digite seu e-mail para entrar ou criar seu acesso.</div>
+      <div class="fg" style="text-align:left;margin-bottom:.75rem;">
+        <label style="font-size:11px;font-weight:700;color:#0C447C;display:block;margin-bottom:6px;">Seu e-mail</label>
+        <input type="email" id="login-email" placeholder="nome@unemat.br ou @gmail.com"
+          style="width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:12px 14px;font-size:14px;outline:none;color:#1a2a3a;background:#E6F1FB;"
+          onkeydown="if(event.key==='Enter')checkEmail()">
+      </div>
+      <button onclick="checkEmail()" id="btn-check"
+        style="width:100%;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
+        Continuar →
+      </button>
     </div>
-    <div class="fg" style="text-align:left;margin-bottom:.75rem;">
-      <label style="font-size:11px;font-weight:700;color:#0C447C;display:block;margin-bottom:6px;">Seu e-mail</label>
-      <input type="email" id="login-email" placeholder="nome@unemat.br ou gmail.com"
-        style="width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:11px 14px;font-size:14px;outline:none;color:#1a2a3a;background:#E6F1FB;"
-        onkeydown="if(event.key==='Enter')doLogin()">
+
+    <!-- PASSO 2: Primeiro acesso (cadastro) -->
+    <div id="step-register" style="display:none;">
+      <div class="login-desc" style="background:#EAF3DE;color:#3B6D11;">
+        ✓ E-mail não cadastrado ainda. Preencha seus dados para criar seu acesso.
+      </div>
+      <div class="fg" style="text-align:left;margin-bottom:.6rem;">
+        <label style="font-size:11px;font-weight:700;color:#0C447C;display:block;margin-bottom:5px;">Nome completo</label>
+        <input type="text" id="reg-nome" placeholder="Prof. Dr. Nome Sobrenome"
+          style="width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:11px 14px;font-size:13px;outline:none;color:#1a2a3a;background:#E6F1FB;">
+      </div>
+      <div class="fg" style="text-align:left;margin-bottom:.6rem;">
+        <label style="font-size:11px;font-weight:700;color:#0C447C;display:block;margin-bottom:5px;">Papel no projeto</label>
+        <select id="reg-papel"
+          style="width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:11px 14px;font-size:13px;outline:none;color:#1a2a3a;background:#E6F1FB;">
+          <option value="Pesquisador">Pesquisador(a)</option>
+          <option value="Coordenador Geral">Coordenador(a) Geral</option>
+          <option value="Mestrando">Mestrando(a)</option>
+          <option value="Colaborador">Colaborador(a)</option>
+        </select>
+      </div>
+      <div class="fg" style="text-align:left;margin-bottom:.75rem;">
+        <label style="font-size:11px;font-weight:700;color:#0C447C;display:block;margin-bottom:5px;">Linha(s) de pesquisa</label>
+        <select id="reg-linha"
+          style="width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:11px 14px;font-size:13px;outline:none;color:#1a2a3a;background:#E6F1FB;">
+          <option value="L1">L1 – Monitoramento e Modelagem</option>
+          <option value="L2">L2 – Biodiversidade e Biogeoquímica</option>
+          <option value="L3">L3 – Gestão Territorial</option>
+          <option value="L1/L2">L1 e L2</option>
+          <option value="L1/L3">L1 e L3</option>
+          <option value="L2/L3">L2 e L3</option>
+          <option value="L1/L2/L3">Todas as linhas</option>
+        </select>
+      </div>
+      <button onclick="doRegister()" id="btn-register"
+        style="width:100%;padding:12px;background:#3B6D11;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:.5rem;">
+        Criar meu acesso
+      </button>
+      <button onclick="backToEmail()"
+        style="width:100%;padding:8px;background:transparent;color:#5F5E5A;border:.5px solid #C8DDF5;border-radius:10px;font-size:12px;cursor:pointer;">
+        ← Voltar
+      </button>
     </div>
-    <button class="google-btn" onclick="doLogin()" id="login-btn"
-      style="background:#0C447C;color:#fff;border:none;font-weight:800;font-size:14px;">
-      Entrar na plataforma
-    </button>
+
     <div id="login-error" style="color:#A32D2D;font-size:12px;margin-top:.75rem;display:none;background:#FCEBEB;padding:8px 12px;border-radius:8px;"></div>
-    <p class="login-note" style="margin-top:1rem;">
-      Problema para entrar? Fale com o coordenador Prof. Dr. Amintas Rossete.
+    <p style="font-size:10px;color:#5F5E5A;margin-top:1rem;">
+      PROFÁGUA · UNEMAT · Cáceres-MT · 2026–2028
     </p>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════
-     APP
-════════════════════════════════════ -->
 <div id="app" style="display:none;flex-direction:column;min-height:100vh;">
 
   <!-- HEADER -->
@@ -761,63 +802,97 @@ let CUR_PROF = null;
    AUTH
 ══════════════════════════════════════ */
 
-const PROFESSORES = {
-  "amintas.rossete@unemat.br":    {id:1,  nm:"Amintas Nazareth Rossete",        sg:"AN", rl:"Coordenador Geral",  ll:"L1/L3"},
-  "adley.abreu@unemat.br":        {id:2,  nm:"Adley Bergson G. de Abreu",        sg:"AB", rl:"Pesquisador",        ll:"L2"},
-  "alexandre.porto@unemat.br":    {id:3,  nm:"Alexandre Gonçalves Porto",         sg:"AG", rl:"Pesquisador",        ll:"L2/L3"},
-  "anderson.amaral@unemat.br":    {id:4,  nm:"Anderson M. do Amaral",             sg:"AM", rl:"Pesquisador",        ll:"L1/L3"},
-  "claumir.muniz@unemat.br":      {id:5,  nm:"Claumir Cesar Muniz",               sg:"CC", rl:"Pesquisador",        ll:"L2/L3"},
-  "erico.martins@unemat.br":      {id:6,  nm:"Érico Fernando O. Martins",         sg:"EF", rl:"Pesquisador",        ll:"L1/L3"},
-  "ernandes.sobreira@unemat.br":  {id:7,  nm:"Ernandes Sobreira Oliveira Jr.",    sg:"ES", rl:"Pesquisador",        ll:"L1/L2"},
-  "ernandes.sobreira@gmail.com":  {id:7,  nm:"Ernandes Sobreira Oliveira Jr.",    sg:"ES", rl:"Pesquisador",        ll:"L1/L2"},
-  "fatima.iocca@unemat.br":       {id:8,  nm:"Fátima A. da Silva Iocca",          sg:"FA", rl:"Pesquisadora",       ll:"L3"},
-  "francisco.lledo@unemat.br":    {id:9,  nm:"Francisco Lledo dos Santos",        sg:"FL", rl:"Pesquisador",        ll:"L1"},
-  "rodrigo.zanin@unemat.br":      {id:10, nm:"Rodrigo Bruno Zanin",               sg:"RZ", rl:"Pesquisador",        ll:"L1/L3"},
-  "solange.arrolho@unemat.br":    {id:11, nm:"Solange A. Arrolho da Silva",       sg:"SA", rl:"Pesquisadora",       ll:"L3"},
-  "solange.castrillon@unemat.br": {id:12, nm:"Solange Kimie I. Castrillon",       sg:"SK", rl:"Pesquisadora",       ll:"L3"},
-  "tadeu.queiroz@unemat.br":      {id:13, nm:"Tadeu Miranda de Queiroz",          sg:"TM", rl:"Pesquisador",        ll:"L1/L2"},
-  "wilkinson.lazaro@unemat.br":   {id:14, nm:"Wilkinson Lopes Lázaro",            sg:"WL", rl:"Pesquisador",        ll:"L1/L2"},
-  "wilkinson.lazaro@gmail.com":   {id:14, nm:"Wilkinson Lopes Lázaro",            sg:"WL", rl:"Pesquisador",        ll:"L1/L2"},
-};
 
-function doLogin(){
-  const email = (document.getElementById('login-email').value||'').trim().toLowerCase();
-  const btn = document.getElementById('login-btn');
-  const err = document.getElementById('login-error');
-  err.style.display='none';
-  if(!email){ err.style.display='block'; err.textContent='Digite seu e-mail.'; return; }
-  const prof = PROFESSORES[email];
-  if(!prof){
-    err.style.display='block';
-    err.textContent='E-mail não encontrado. Verifique ou fale com o coordenador.';
-    return;
+// ── SESSION / LOGIN ──────────────────────────────────────────────────────────
+
+function lerr(msg){
+  const el=document.getElementById('login-error');
+  el.style.display=msg?'block':'none';
+  if(msg) el.textContent=msg;
+}
+
+function backToEmail(){
+  document.getElementById('step-register').style.display='none';
+  document.getElementById('step-email').style.display='block';
+  lerr('');
+}
+
+async function checkEmail(){
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  if(!email){lerr('Digite seu e-mail.');return;}
+  if(!email.includes('@')){lerr('E-mail inválido.');return;}
+  const btn=document.getElementById('btn-check');
+  btn.textContent='Verificando...';btn.disabled=true;lerr('');
+  try{
+    // Check Firestore for existing user
+    const snap = await db.collection('usuarios').where('email','==',email).limit(1).get();
+    if(!snap.empty){
+      // User exists — log in
+      const data = snap.docs[0].data();
+      const uid_val = snap.docs[0].id;
+      CUR_USER = {email, uid:uid_val, displayName:data.nm};
+      CUR_PROF = {nm:data.nm, sg:data.sg||initials(data.nm), rl:data.rl||'Pesquisador', ll:data.ll||'L1'};
+      localStorage.setItem('pa_session', JSON.stringify({email, uid:uid_val, ...CUR_PROF}));
+      enterApp();
+    } else {
+      // New user — show registration form
+      document.getElementById('step-email').style.display='none';
+      document.getElementById('step-register').style.display='block';
+    }
+  } catch(e){
+    lerr('Erro ao verificar: '+e.message);
+  } finally {
+    btn.textContent='Continuar →';btn.disabled=false;
   }
-  btn.textContent='Entrando...'; btn.disabled=true;
-  // Save to localStorage for session persistence
-  localStorage.setItem('pa_user', JSON.stringify({email,...prof}));
-  CUR_USER = {email, uid: 'user_'+prof.id, displayName: prof.nm};
-  CUR_PROF = prof;
-  enterApp();
+}
+
+async function doRegister(){
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  const nome=(document.getElementById('reg-nome').value||'').trim();
+  const papel=document.getElementById('reg-papel').value;
+  const linha=document.getElementById('reg-linha').value;
+  if(!nome){lerr('Digite seu nome completo.');return;}
+  const btn=document.getElementById('btn-register');
+  btn.textContent='Criando acesso...';btn.disabled=true;lerr('');
+  try{
+    const sg = initials(nome);
+    const docRef = await db.collection('usuarios').add({
+      email, nm:nome, sg, rl:papel, ll:linha,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      prog:0
+    });
+    CUR_USER = {email, uid:docRef.id, displayName:nome};
+    CUR_PROF = {nm:nome, sg, rl:papel, ll:linha};
+    localStorage.setItem('pa_session', JSON.stringify({email, uid:docRef.id, nm:nome, sg, rl:papel, ll:linha}));
+    enterApp();
+  } catch(e){
+    lerr('Erro ao criar acesso: '+e.message);
+    btn.textContent='Criar meu acesso';btn.disabled=false;
+  }
+}
+
+function initials(nome){
+  return nome.split(' ').filter(w=>w.length>2).map(w=>w[0].toUpperCase()).join('').substring(0,2)||'??';
 }
 
 function logout(){
-  localStorage.removeItem('pa_user');
-  CUR_USER = null; CUR_PROF = null;
+  localStorage.removeItem('pa_session');
+  CUR_USER=null;CUR_PROF=null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-email').value='';
-  const btn=document.getElementById('login-btn');
-  if(btn){btn.textContent='Entrar na plataforma';btn.disabled=false;}
+  document.getElementById('step-email').style.display='block';
+  document.getElementById('step-register').style.display='none';
+  lerr('');
 }
 
 function enterApp(){
-  const p = CUR_PROF;
+  const p=CUR_PROF;
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
-  document.getElementById('hdr-nm').textContent = p.nm.split(' ').slice(0,2).join(' ');
-  document.getElementById('hdr-rl').textContent = p.rl + ' · ' + p.ll;
-  const wrap = document.getElementById('hdr-av-wrap');
-  wrap.innerHTML=`<div class="av-txt" style="cursor:default;">${p.sg}</div>`;
+  document.getElementById('hdr-nm').textContent=p.nm.split(' ').slice(0,2).join(' ');
+  document.getElementById('hdr-rl').textContent=p.rl+' · '+p.ll;
+  document.getElementById('hdr-av-wrap').innerHTML=`<div class="av-txt" style="cursor:default;">${p.sg}</div>`;
   document.getElementById('dash-greet').textContent='Olá, prof. '+p.nm.split(' ')[0]+'!';
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   initRealtime();
@@ -826,20 +901,17 @@ function enterApp(){
 
 // Restore session on page load
 (function restoreSession(){
-  const saved = localStorage.getItem('pa_user');
+  const saved=localStorage.getItem('pa_session');
   if(saved){
     try{
-      const u = JSON.parse(saved);
-      const prof = PROFESSORES[u.email];
-      if(prof){
-        CUR_USER = {email:u.email, uid:'user_'+prof.id, displayName:prof.nm};
-        CUR_PROF = prof;
-        enterApp();
-        return;
+      const u=JSON.parse(saved);
+      if(u.email && u.uid){
+        CUR_USER={email:u.email,uid:u.uid,displayName:u.nm};
+        CUR_PROF={nm:u.nm,sg:u.sg,rl:u.rl,ll:u.ll};
+        enterApp();return;
       }
     }catch(e){}
   }
-  // No session — show login
   document.getElementById('login-screen').style.display='flex';
 })();
 
@@ -849,6 +921,12 @@ function enterApp(){
    REALTIME LISTENERS
 ══════════════════════════════════════ */
 function initRealtime(){
+  // Listen to all registered users (for team view)
+  db.collection('usuarios').onSnapshot(snap=>{
+    CACHE.usuarios = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('pg-equipe').classList.contains('on')) renderEquipe();
+    if(document.getElementById('pg-projeto').classList.contains('on')) renderProjeto();
+  });
   // Alertas em tempo real
   db.collection('alertas').orderBy('criadoEm','desc').onSnapshot(snap=>{
     CACHE.alertas = snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -903,7 +981,7 @@ function initRealtime(){
 /* ══════════════════════════════════════
    CACHE LOCAL (rápido para renders)
 ══════════════════════════════════════ */
-const CACHE={ alertas:[], producoes:[], mural:[], atividades:[], equip:[], alunos:[], orc:DEF_ORC(), relatorios:[], metas:[] };
+const CACHE={ alertas:[], producoes:[], mural:[], atividades:[], equip:[], alunos:[], orc:DEF_ORC(), relatorios:[], metas:[], usuarios:[] };
 
 function DEF_ORC(){
   return [
@@ -1297,7 +1375,8 @@ const PROFS=[
   {sg:'WL',nm:'Wilkinson Lopes Lázaro',rl:'Pesquisador',ll:'L1/L2',prog:50},
 ];
 function renderEquipe(){
-  document.getElementById('equipe-grid').innerHTML=PROFS.map(p=>`
+  const membros = CACHE.usuarios && CACHE.usuarios.length ? CACHE.usuarios : PROFS;
+  document.getElementById('equipe-grid').innerHTML=membros.map(p=>`
     <div class="card" style="padding:1rem;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
         <div class="av-sm" style="width:36px;height:36px;font-size:11px;">${p.sg}</div>
