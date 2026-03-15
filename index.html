@@ -570,6 +570,13 @@ var PD_PDF_DATA = null;
 var LOTE_FILES = [];
 var BANCAS = [];
 
+
+// Helper: delete with ownership check
+function btnDel(col, fid, uid){
+  if(!fid||uid!==EU.uid) return '';
+  return '<button class="bd" onclick="delD(\''+col+'\',\''+fid+'\',\''+uid+'\')">X</button>';
+}
+
 var MG = [
   {id:'mg01',cat:'Producao cientifica',desc:'Publicar 24 artigos Qualis A1-B1 no trienio',meta:24,unid:'artigos'},
   {id:'mg02',cat:'Producao cientifica',desc:'Produzir 14 capitulos de livro',meta:14,unid:'capitulos'},
@@ -1036,40 +1043,56 @@ function renderEquipe(){
 function renderProd(){
   var el=G('lista-prod');if(!el)return;
   if(!D.prods.length){el.innerHTML='<div class="empty">Nenhuma producao. Clique em + Nova.</div>';return;}
-  el.innerHTML=D.prods.map(function(p,i){
-    return '<div class="card" style="padding:.9rem;margin-bottom:.5rem;">'+
-      '<div style="font-size:13px;font-weight:700;color:#042C53;">'+p.titulo+'</div>'+
-      '<div style="font-size:11px;color:#888;margin:3px 0;">'+(p.veiculo||'')+(p.autores?' - '+p.autores:'')+'</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">'+
-      '<span class="tag tb">'+p.tipo+'</span>'+
-      '<button class="bd" onclick="delD(\'prods\',\''+p.fid+'\',\''+p.uid+'\')'+(p.uid!==EU.uid?' style="display:none"':'')+'">X</button></div></div>';
-  }).join('');
+  var html='';
+  D.prods.forEach(function(p){
+    var del=btnDel("prods",p.fid,p.uid);
+    var stBadge=p.status==='Publicado'?'tg':p.status==='Aceito'?'tb':'ta';
+    var arq='';
+    if(p.arquivo) arq+='<a href="'+p.arquivo+'" download style="background:#EAF3DE;color:#3B6D11;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;text-decoration:none;display:inline-block;margin-right:4px;">PDF</a>';
+    if(p.link) arq+='<a href="'+p.link+'" target="_blank" style="background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;text-decoration:none;display:inline-block;">Link</a>';
+    html+='<div class="card" style="padding:.9rem;margin-bottom:.5rem;">';
+    html+='<div style="font-size:13px;font-weight:700;color:#042C53;">'+p.titulo+'</div>';
+    html+='<div style="font-size:11px;color:#888;margin:3px 0;">'+(p.veiculo||'')+(p.autores?' - '+p.autores:'')+(p.ano?' - '+p.ano:'')+'</div>';
+    html+='<div style="display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap;">';
+    html+='<span class="tag tb">'+p.tipo+'</span> <span class="tag '+stBadge+'">'+p.status+'</span> '+arq;
+    html+='</div>';
+    if(p.doi) html+='<div style="font-size:10px;color:#888;margin-top:4px;">DOI: '+p.doi+'</div>';
+    html+='<div style="text-align:right;margin-top:4px;">'+del+'</div></div>';
+  });
+  el.innerHTML=html;
 }
 
 function renderAtiv(){
   var el=G('lista-ativ');if(!el)return;
   if(!D.ativs.length){el.innerHTML='<div class="empty">Nenhuma atividade. Clique em + Nova.</div>';return;}
-  el.innerHTML=D.ativs.map(function(a,i){
-    return '<div class="card" style="padding:.9rem;margin-bottom:.5rem;">'+
-      '<div style="font-size:11px;font-weight:700;color:#185FA5;">'+a.tipo+' - '+(a.data||'')+'</div>'+
-      '<div style="font-size:13px;font-weight:700;color:#042C53;margin-top:2px;">'+a.titulo+'</div>'+
-      (a.local?'<div style="font-size:11px;color:#888;">Local: '+a.local+'</div>':'')+
-      (a.alunos?'<div style="font-size:11px;color:#888;">Alunos: '+a.alunos+'</div>':'')+
-      '<div style="text-align:right;margin-top:5px;">'+(a.uid===EU.uid?'<button class="bd" onclick="delD(\'ativs\',\''+a.fid+'\',\''+a.uid+'\')" >X</button>':'')+'</div></div>';
-  }).join('');
+  var html='';
+  D.ativs.forEach(function(a){
+    var del=btnDel("ativs",a.fid,a.uid);
+    html+='<div class="card" style="padding:.9rem;margin-bottom:.5rem;">';
+    html+='<div style="font-size:11px;font-weight:700;color:#185FA5;">'+a.tipo+' - '+(a.data||'')+'</div>';
+    html+='<div style="font-size:13px;font-weight:700;color:#042C53;margin-top:2px;">'+a.titulo+'</div>';
+    if(a.local)html+='<div style="font-size:11px;color:#888;">Local: '+a.local+'</div>';
+    if(a.alunos)html+='<div style="font-size:11px;color:#888;">Alunos: '+a.alunos+'</div>';
+    html+='<div style="text-align:right;margin-top:5px;">'+del+'</div></div>';
+  });
+  el.innerHTML=html;
 }
 
 function renderAlunos(){
   var el=G('lista-aln');if(!el)return;
   if(!D.alunos.length){el.innerHTML='<div class="empty">Nenhum aluno. Clique em + Novo.</div>';return;}
-  el.innerHTML=D.alunos.map(function(a,i){
-    return '<div class="card" style="display:flex;gap:10px;padding:.9rem;margin-bottom:.5rem;">'+
-      '<div class="av">'+ini(a.nm)+'</div>'+
-      '<div style="flex:1;"><div style="font-weight:700;color:#042C53;">'+a.nm+'</div>'+
-      '<div style="font-size:11px;color:#185FA5;margin:2px 0;">'+(a.titulo||'Titulo em definicao')+'</div>'+
-      '<span class="tag tb">'+(a.linha||'')+'</span></div>'+
-      '<button class="bd" onclick="delD(\'alunos\',\''+a.fid+'\',\''+a.uid+'\')'+(a.uid!==EU.uid?' style="display:none"':'')+'">X</button></div>';
-  }).join('');
+  var html='';
+  D.alunos.forEach(function(a){
+    var del=btnDel("alunos",a.fid,a.uid);
+    html+='<div class="card" style="display:flex;gap:10px;padding:.9rem;margin-bottom:.5rem;">';
+    html+='<div class="av">'+ini(a.nm)+'</div>';
+    html+='<div style="flex:1;">';
+    html+='<div style="font-weight:700;color:#042C53;">'+a.nm+'</div>';
+    html+='<div style="font-size:11px;color:#185FA5;margin:2px 0;">'+(a.titulo||'Titulo em definicao')+'</div>';
+    html+='<span class="tag tb">'+(a.linha||'')+'</span>';
+    html+='</div>'+del+'</div>';
+  });
+  el.innerHTML=html;
 }
 
 function salvarMural(){
@@ -1240,11 +1263,12 @@ function bancaCard(b){
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var bdt=b.data?new Date(b.data):null;if(bdt)bdt.setHours(0,0,0,0);
   var urgente=bdt&&((bdt-hoje)/(1000*60*60*24))<=7&&bdt>=hoje;
+  var editBtn=b.uid===EU.uid?'<button class="bd" data-fid="'+b.fid+'" onclick="editarBanca(this.dataset.fid)">Editar</button>':'';
   return '<div class="card" style="margin-bottom:.75rem;border-left:4px solid '+(urgente?'#A32D2D':'#378ADD')+';">'+
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;">'+
     '<div><div style="font-size:13px;font-weight:800;color:#042C53;">'+b.aluno+'</div>'+
     '<div style="font-size:11px;color:#5F5E5A;margin-top:2px;line-height:1.5;">'+b.titulo+'</div></div>'+
-    (b.uid===EU.uid?'<button class="bd" onclick="editarBanca(''+b.fid+'')">✏</button>':'')+'</div>'+
+    editBtn+'</div>'+
     (dt?'<div style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:'+(urgente?'#A32D2D':'#185FA5')+';">📅 '+dt+(urgente?' — Em breve!':'')+'</div>':'')+
     (b.local?'<div style="font-size:11px;color:#888;margin-top:3px;">📍 '+b.local+'</div>':'')+
     (b.membros?'<div style="font-size:11px;color:#888;margin-top:3px;line-height:1.5;">👥 '+b.membros+'</div>':'')+
