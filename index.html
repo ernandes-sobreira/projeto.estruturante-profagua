@@ -6,30 +6,34 @@
 <title>PROFAGUA 2026-2028</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:sans-serif;background:#EEF5FF;}
+body{font-family:sans-serif;background:#EEF5FF;color:#1a2a3a;}
 #login{min-height:100vh;background:linear-gradient(135deg,#042C53,#185FA5);display:flex;align-items:center;justify-content:center;padding:1rem;}
 #app{display:none;flex-direction:column;min-height:100vh;}
 .box{background:#fff;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(4,44,83,.4);}
 .logo-area{text-align:center;margin-bottom:1.25rem;}
-.logo-area .pa{display:inline-block;background:#0C447C;color:#fff;font-size:28px;font-weight:900;padding:12px 24px;border-radius:12px;letter-spacing:2px;}
-.logo-area .sub-logo{font-size:10px;color:#888;margin-top:4px;}
-h1{text-align:center;font-size:22px;font-weight:900;color:#042C53;margin-bottom:3px;}
+.logo-pa{display:inline-block;background:#0C447C;color:#fff;font-size:26px;font-weight:900;padding:10px 22px;border-radius:12px;letter-spacing:2px;}
+.logo-sub{font-size:10px;color:#888;margin-top:4px;}
+h1{text-align:center;font-size:21px;font-weight:900;color:#042C53;margin-bottom:3px;}
 .sub{text-align:center;font-size:11px;color:#888;margin-bottom:1.5rem;}
 label{display:block;font-size:11px;font-weight:700;color:#0C447C;margin-bottom:5px;}
-input,select{width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:12px;font-size:15px;outline:none;background:#E6F1FB;margin-bottom:.9rem;font-family:inherit;color:#1a2a3a;}
-input:focus,select:focus{border-color:#378ADD;background:#fff;}
-.btn{width:100%;padding:14px;background:#0C447C;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;}
+input,select,textarea{width:100%;border:1.5px solid #C8DDF5;border-radius:10px;padding:11px 13px;font-size:14px;outline:none;background:#E6F1FB;font-family:inherit;color:#1a2a3a;}
+input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
+.fg{margin-bottom:.85rem;}
+.btn{width:100%;padding:13px;background:#0C447C;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:.1rem;}
+.btn:active{background:#042C53;}
 .btn-s{background:transparent;color:#888;border:.5px solid #ddd;font-size:12px;padding:9px;margin-top:.5rem;}
 .ok{background:#EAF3DE;color:#3B6D11;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:.75rem;}
-.err{color:#A32D2D;font-size:12px;margin-top:.5rem;display:none;}
+.err{color:#A32D2D;font-size:12px;margin-top:.5rem;display:none;background:#FCEBEB;padding:8px 12px;border-radius:8px;}
 #p2{display:none;}
-.hdr{background:#042C53;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #378ADD;}
-.hdr-l{display:flex;align-items:center;gap:10px;}
-.hdr-ic{background:#378ADD;color:#fff;font-size:10px;font-weight:900;padding:6px 8px;border-radius:8px;}
+/* APP */
+.hdr{background:#042C53;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #378ADD;position:sticky;top:0;z-index:50;}
+.hdr-l{display:flex;align-items:center;gap:9px;}
+.hdr-ic{background:#378ADD;color:#fff;font-size:10px;font-weight:900;padding:5px 8px;border-radius:7px;}
 .hdr-t1{color:#fff;font-size:12px;font-weight:800;}
 .hdr-t2{color:#B5D4F4;font-size:9px;}
-.hdr-r{display:flex;align-items:center;gap:6px;}
-.uav{width:28px;height:28px;border-radius:50%;background:#378ADD;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.hdr-r{display:flex;align-items:center;gap:7px;}
+.uav{width:30px;height:30px;border-radius:50%;background:#378ADD;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;cursor:pointer;}
+.uav img{width:30px;height:30px;object-fit:cover;}
 .unm{color:#fff;font-size:11px;font-weight:700;}
 .sair{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;}
 .nav{background:#0C447C;display:flex;overflow-x:auto;border-bottom:1px solid #185FA5;scrollbar-width:none;}
@@ -55,7 +59,10 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
 .tb{background:#E6F1FB;color:#185FA5;}.tg{background:#EAF3DE;color:#3B6D11;}
 .ta{background:#FAEEDA;color:#854F0B;}.tgr{background:#F1EFE8;color:#888;}
 .empty{text-align:center;color:#888;padding:1.5rem;font-size:12px;}
-.av{width:26px;height:26px;border-radius:50%;background:#0C447C;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.av{width:26px;height:26px;border-radius:50%;background:#0C447C;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.av img{width:26px;height:26px;object-fit:cover;}
+.av-lg{width:72px;height:72px;border-radius:50%;background:#0C447C;color:#fff;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto .75rem;border:3px solid #378ADD;}
+.av-lg img{width:72px;height:72px;object-fit:cover;}
 .sh{font-size:10px;font-weight:800;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;padding:5px 8px;background:#E6F1FB;border-radius:6px;margin:8px 0 4px;}
 .mi{border-radius:10px;padding:.9rem;margin-bottom:.5rem;border:.5px solid #C8DDF5;border-left:3px solid #378ADD;}
 .mi.c{border-left-color:#3B6D11;background:#f8fef5;}
@@ -71,9 +78,34 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
 .mx{background:#E6F1FB;border:none;border-radius:6px;padding:3px 9px;font-size:16px;color:#0C447C;cursor:pointer;}
 .mfg{margin-bottom:.75rem;}
 .mfg label{display:block;font-size:11px;font-weight:700;color:#0C447C;margin-bottom:4px;}
-.mfg input,.mfg select,.mfg textarea{width:100%;border:1.5px solid #C8DDF5;border-radius:9px;padding:10px 12px;font-size:13px;outline:none;background:#E6F1FB;font-family:inherit;color:#1a2a3a;margin-bottom:0;}
+.mfg input,.mfg select,.mfg textarea{margin-bottom:0;}
 .mfg textarea{min-height:80px;resize:vertical;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#042C53;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;display:none;z-index:999;white-space:nowrap;}
+/* MURAL INSTAGRAM */
+.mural-post{background:#fff;border-radius:12px;border:.5px solid #C8DDF5;margin-bottom:1rem;overflow:hidden;}
+.mural-post-hdr{display:flex;align-items:center;gap:10px;padding:.75rem;}
+.mural-post-img{width:100%;max-height:320px;object-fit:cover;display:block;background:#EEF5FF;}
+.mural-post-img-placeholder{width:100%;height:180px;background:linear-gradient(135deg,#E6F1FB,#C8DDF5);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.mural-post-body{padding:.75rem;}
+.mural-post-titulo{font-size:14px;font-weight:800;color:#042C53;margin-bottom:4px;}
+.mural-post-texto{font-size:12px;color:#5F5E5A;line-height:1.6;}
+.mural-post-footer{display:flex;justify-content:space-between;align-items:center;padding:.5rem .75rem;border-top:.5px solid #EEF5FF;}
+.mural-post-meta{font-size:10px;color:#888;}
+/* LINHA CARD */
+.linha-card{border-radius:12px;padding:1rem;margin-bottom:.75rem;border:.5px solid #C8DDF5;}
+.linha-card.l1{border-left:4px solid #378ADD;background:linear-gradient(to right,#E6F1FB,#fff);}
+.linha-card.l2{border-left:4px solid #3B6D11;background:linear-gradient(to right,#EAF3DE,#fff);}
+.linha-card.l3{border-left:4px solid #854F0B;background:linear-gradient(to right,#FAEEDA,#fff);}
+.linha-titulo{font-size:13px;font-weight:800;margin-bottom:4px;}
+.l1 .linha-titulo{color:#042C53;}
+.l2 .linha-titulo{color:#1A3D0A;}
+.l3 .linha-titulo{color:#5A2D00;}
+.membro-chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border:.5px solid #C8DDF5;border-radius:20px;padding:4px 8px;margin:3px 2px;font-size:11px;}
+/* PERFIL */
+.perfil-foto-wrap{position:relative;width:72px;margin:0 auto .75rem;}
+.perfil-foto-btn{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:#378ADD;border:none;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.perfil-link{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#EEF5FF;border-radius:10px;margin-bottom:.5rem;text-decoration:none;color:#0C447C;font-size:12px;font-weight:700;}
+.perfil-link span{flex:1;}
 </style>
 </head>
 <body>
@@ -81,38 +113,38 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
 <div id="login">
   <div class="box">
     <div class="logo-area">
-      <div class="pa">PROFAGUA</div>
-      <div class="sub-logo">UNEMAT · Caceres-MT</div>
+      <div class="logo-pa">PROFAGUA</div>
+      <div class="logo-sub">UNEMAT · Caceres-MT</div>
     </div>
     <h1>Projeto Estruturante</h1>
     <div class="sub">2026-2028 · Bacias Hidrograficas de MT</div>
     <div id="p1">
-      <label>Seu e-mail institucional</label>
-      <input type="email" id="email" placeholder="nome@unemat.br">
-      <button class="btn" id="btn-cont" onclick="continuar()">Continuar</button>
+      <div class="fg"><label>Seu e-mail institucional</label>
+        <input type="email" id="email" placeholder="nome@unemat.br"></div>
+      <button class="btn" onclick="continuar()">Continuar</button>
       <div class="err" id="lerr"></div>
     </div>
     <div id="p2">
       <div class="ok">Primeiro acesso — preencha seus dados.</div>
-      <label>Nome completo</label>
-      <input type="text" id="nome" placeholder="Prof. Dr. Nome Sobrenome">
-      <label>Papel no projeto</label>
-      <select id="papel">
-        <option>Coordenador(a) Geral</option>
-        <option selected>Pesquisador(a)</option>
-        <option>Mestrando(a)</option>
-        <option>Colaborador(a)</option>
-      </select>
-      <label>Linha de pesquisa</label>
-      <select id="linha">
-        <option value="L1">L1 - Monitoramento e Modelagem</option>
-        <option value="L2">L2 - Biodiversidade e Biogeoquimica</option>
-        <option value="L3">L3 - Gestao Territorial</option>
-        <option value="L1/L2">L1 e L2</option>
-        <option value="L1/L3">L1 e L3</option>
-        <option value="L2/L3">L2 e L3</option>
-        <option value="L1/L2/L3">Todas</option>
-      </select>
+      <div class="fg"><label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Prof. Dr. Nome Sobrenome"></div>
+      <div class="fg"><label>Papel no projeto</label>
+        <select id="papel">
+          <option>Coordenador(a) Geral</option>
+          <option selected>Pesquisador(a)</option>
+          <option>Mestrando(a)</option>
+          <option>Colaborador(a)</option>
+        </select></div>
+      <div class="fg"><label>Linha de pesquisa <span style="font-weight:400;font-size:10px;">(pode alterar depois no perfil)</span></label>
+        <select id="linha">
+          <option value="L1">L1 - Monitoramento e Modelagem</option>
+          <option value="L2">L2 - Biodiversidade e Biogeoquimica</option>
+          <option value="L3">L3 - Gestao Territorial</option>
+          <option value="L1/L2">L1 e L2</option>
+          <option value="L1/L3">L1 e L3</option>
+          <option value="L2/L3">L2 e L3</option>
+          <option value="L1/L2/L3">Todas</option>
+        </select></div>
       <button class="btn" onclick="cadastrar()">Criar meu acesso</button>
       <button class="btn btn-s" onclick="voltarLogin()">Voltar</button>
       <div class="err" id="lerr2"></div>
@@ -128,12 +160,13 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     </div>
     <div class="hdr-r">
       <div class="unm" id="hnm"></div>
-      <div class="uav" id="hav">?</div>
+      <div class="uav" id="hav" onclick="ir('perfil',null)">?</div>
       <button class="sair" onclick="sair()">Sair</button>
     </div>
   </div>
   <div class="nav">
     <button class="nb on" onclick="ir('inicio',this)">Inicio</button>
+    <button class="nb" onclick="ir('mural',this)">Mural</button>
     <button class="nb" onclick="ir('projeto',this)">Projeto</button>
     <button class="nb" onclick="ir('metas',this)">Metas</button>
     <button class="nb" onclick="ir('orcamento',this)">Orcamento</button>
@@ -141,9 +174,10 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <button class="nb" onclick="ir('producoes',this)">Producoes</button>
     <button class="nb" onclick="ir('atividades',this)">Atividades</button>
     <button class="nb" onclick="ir('alunos',this)">Alunos</button>
-    <button class="nb" onclick="ir('mural',this)">Mural</button>
+    <button class="nb" onclick="ir('perfil',this)">Meu Perfil</button>
   </div>
 
+  <!-- INICIO -->
   <div class="pag on" id="pag-inicio">
     <div class="card" style="background:linear-gradient(135deg,#042C53,#185FA5);border:none;">
       <div style="color:#B5D4F4;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px;">Projeto Estruturante PROFAGUA/UNEMAT</div>
@@ -155,10 +189,9 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
       </div>
     </div>
     <div class="g2" id="m-proj"></div>
-    <div class="card">
-      <div class="ct">Progresso por linha</div>
-      <div id="prog-l"></div>
-    </div>
+    <!-- LINHAS COM MEMBROS -->
+    <div id="linhas-membros"></div>
+    <!-- MEU PROGRESSO -->
     <div class="card">
       <div class="ct" id="saud-p">Meu progresso</div>
       <div class="g2" id="m-pes"></div>
@@ -166,6 +199,16 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     </div>
   </div>
 
+  <!-- MURAL INSTAGRAM -->
+  <div class="pag" id="pag-mural">
+    <div class="row">
+      <div class="ph" style="margin:0">Mural do Projeto</div>
+      <button class="ba" onclick="abrir('mm-mural')">+ Publicar</button>
+    </div>
+    <div id="lista-mural"></div>
+  </div>
+
+  <!-- PROJETO -->
   <div class="pag" id="pag-projeto">
     <div class="ph">O Projeto Estruturante</div>
     <div class="ptabs">
@@ -186,6 +229,10 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
           <b>Pesquisadores:</b> 14 docentes permanentes<br>
           <b>Dissertacoes:</b> Minimo 30 no trienio
         </div>
+      </div>
+      <div class="card">
+        <div class="ct">Objetivo Geral</div>
+        <p style="font-size:12px;line-height:1.7;">Produzir diagnostico integrado, modelos preditivos e propostas de gestao participativa para as principais regioes hidrograficas de Mato Grosso, subsidiando o ZEE-MT, PERH-MT e Comites de Bacia.</p>
       </div>
     </div>
     <div class="ptc" id="pr-lin">
@@ -209,7 +256,7 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
         <div class="ct">Produtos Esperados</div>
         <div style="font-size:12px;line-height:2.2;">
           <div>Atlas Digital das Bacias de MT (WebGIS)</div>
-          <div>Modelos preditivos de vazao LSTM (5 sub-bacias)</div>
+          <div>Modelos preditivos de vazao LSTM</div>
           <div>Banco de dados de biodiversidade aquatica</div>
           <div>Banco de dados de Hg, metais e GEE</div>
           <div>IEEB - Indice de Estado Ecologico das Bacias</div>
@@ -234,6 +281,7 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     </div>
   </div>
 
+  <!-- METAS -->
   <div class="pag" id="pag-metas">
     <div class="row">
       <div class="ph" style="margin:0">Metas</div>
@@ -247,16 +295,18 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div class="ptc" id="mg-min"><div id="lista-mp"></div></div>
   </div>
 
+  <!-- ORCAMENTO -->
   <div class="pag" id="pag-orcamento">
     <div class="ph">Orcamento</div>
     <div class="card">
       <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;">Total Geral</div>
       <div style="font-size:26px;font-weight:900;color:#0C447C;">R$ 924.000</div>
-      <div style="font-size:10px;color:#888;">2026: R$ 308k - 2027: R$ 305k - 2028: R$ 311k</div>
-      <div id="orc" style="margin-top:1rem;"></div>
+      <div style="font-size:10px;color:#888;margin-bottom:1rem;">2026: R$ 308k - 2027: R$ 305k - 2028: R$ 311k</div>
+      <div id="orc"></div>
     </div>
   </div>
 
+  <!-- EQUIPE -->
   <div class="pag" id="pag-equipe">
     <div class="ph">Equipe</div>
     <div class="sh">14 Docentes Permanentes PROFAGUA</div>
@@ -265,6 +315,7 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div id="eq-plat"></div>
   </div>
 
+  <!-- PRODUCOES -->
   <div class="pag" id="pag-producoes">
     <div class="row">
       <div class="ph" style="margin:0">Producoes</div>
@@ -273,6 +324,7 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div id="lista-prod"></div>
   </div>
 
+  <!-- ATIVIDADES -->
   <div class="pag" id="pag-atividades">
     <div class="row">
       <div class="ph" style="margin:0">Atividades</div>
@@ -281,6 +333,7 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div id="lista-ativ"></div>
   </div>
 
+  <!-- ALUNOS -->
   <div class="pag" id="pag-alunos">
     <div class="row">
       <div class="ph" style="margin:0">Alunos</div>
@@ -289,16 +342,49 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div id="lista-aln"></div>
   </div>
 
-  <div class="pag" id="pag-mural">
-    <div class="row">
-      <div class="ph" style="margin:0">Mural</div>
-      <button class="ba" onclick="abrir('mm-mural')">+ Publicar</button>
+  <!-- MEU PERFIL -->
+  <div class="pag" id="pag-perfil">
+    <div class="ph">Meu Perfil</div>
+    <div class="card" style="text-align:center;">
+      <div class="perfil-foto-wrap">
+        <div class="av-lg" id="perfil-av">?</div>
+        <button class="perfil-foto-btn" onclick="G('foto-input').click()" title="Alterar foto">+</button>
+        <input type="file" id="foto-input" accept="image/*" style="display:none" onchange="carregarFoto(this)">
+      </div>
+      <div style="font-size:18px;font-weight:900;color:#042C53;" id="perfil-nm">...</div>
+      <div style="font-size:12px;color:#185FA5;margin:.25rem 0;" id="perfil-rl">...</div>
+      <div id="perfil-linha-tag" style="margin-bottom:.75rem;"></div>
+      <div class="g2" id="perfil-stats"></div>
     </div>
-    <div id="lista-mural"></div>
+    <div class="card">
+      <div class="ct">Links academicos</div>
+      <div id="perfil-links-view"></div>
+      <button class="ba" style="width:100%;margin-top:.5rem;" onclick="abrir('mm-perfil')">Editar perfil</button>
+    </div>
+    <div class="card">
+      <div class="ct">Minhas producoes recentes</div>
+      <div id="perfil-prods"></div>
+    </div>
   </div>
 </div>
 
 <!-- MODAIS -->
+<div class="mb" id="mm-mural" onclick="if(event.target.id=='mm-mural')fechar('mm-mural')">
+  <div class="mbox">
+    <div class="mhd"><div class="mti">Publicar no Mural</div><button class="mx" onclick="fechar('mm-mural')">X</button></div>
+    <div class="mfg"><label>Titulo</label><input type="text" id="mu-ti" placeholder="Titulo da publicacao"></div>
+    <div class="mfg"><label>Texto</label><textarea id="mu-tx" placeholder="Texto da publicacao..."></textarea></div>
+    <div class="mfg">
+      <label>Foto (opcional)</label>
+      <div style="border:1.5px dashed #C8DDF5;border-radius:10px;padding:1rem;text-align:center;cursor:pointer;background:#E6F1FB;" onclick="G('mu-foto').click()">
+        <div id="mu-foto-preview" style="font-size:11px;color:#5F5E5A;">Toque para selecionar uma foto</div>
+        <input type="file" id="mu-foto" accept="image/*" style="display:none" onchange="previewMuralFoto(this)">
+      </div>
+    </div>
+    <button class="btn" onclick="salvarMural()">Publicar</button>
+  </div>
+</div>
+
 <div class="mb" id="mm-p" onclick="if(event.target.id=='mm-p')fechar('mm-p')">
   <div class="mbox">
     <div class="mhd"><div class="mti">Nova Meta</div><button class="mx" onclick="fechar('mm-p')">X</button></div>
@@ -313,9 +399,9 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
 <div class="mb" id="mm-mg" onclick="if(event.target.id=='mm-mg')fechar('mm-mg')">
   <div class="mbox">
     <div class="mhd"><div class="mti">Atualizar Progresso</div><button class="mx" onclick="fechar('mm-mg')">X</button></div>
-    <div id="mm-mg-desc" style="font-size:12px;color:#5F5E5A;margin-bottom:1rem;line-height:1.5;padding:.75rem;background:#EEF5FF;border-radius:8px;"></div>
+    <div id="mm-mg-desc" style="font-size:12px;color:#5F5E5A;margin-bottom:1rem;padding:.75rem;background:#EEF5FF;border-radius:8px;line-height:1.5;"></div>
     <div class="mfg"><label>Progresso (%)</label>
-      <input type="range" min="0" max="100" id="mg-pct" value="0" oninput="document.getElementById('mg-pct-v').textContent=this.value+'%'">
+      <input type="range" min="0" max="100" id="mg-pct" value="0" oninput="G('mg-pct-v').textContent=this.value+'%'">
       <div style="text-align:center;font-weight:700;color:#0C447C;margin-top:4px;font-size:16px;" id="mg-pct-v">0%</div></div>
     <div class="mfg"><label>Status</label>
       <select id="mg-st"><option value="pendente">Pendente</option><option value="andamento">Em andamento</option><option value="concluida">Concluida</option></select></div>
@@ -345,8 +431,8 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
     <div class="mfg"><label>Titulo</label><input type="text" id="at-ti" placeholder="Titulo da atividade"></div>
     <div class="mfg"><label>Data</label><input type="date" id="at-d"></div>
     <div class="mfg"><label>Local</label><input type="text" id="at-l" placeholder="Local da atividade"></div>
-    <div class="mfg"><label>Alunos participantes</label><input type="text" id="at-al" placeholder="Nomes dos alunos"></div>
-    <div class="mfg"><label>Descricao</label><textarea id="at-de" placeholder="Descricao da atividade..."></textarea></div>
+    <div class="mfg"><label>Alunos</label><input type="text" id="at-al" placeholder="Nomes dos alunos"></div>
+    <div class="mfg"><label>Descricao</label><textarea id="at-de" placeholder="Descricao..."></textarea></div>
     <button class="btn" onclick="salvarAtiv()">Registrar</button>
   </div>
 </div>
@@ -363,12 +449,26 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
   </div>
 </div>
 
-<div class="mb" id="mm-mural" onclick="if(event.target.id=='mm-mural')fechar('mm-mural')">
+<div class="mb" id="mm-perfil" onclick="if(event.target.id=='mm-perfil')fechar('mm-perfil')">
   <div class="mbox">
-    <div class="mhd"><div class="mti">Publicar no Mural</div><button class="mx" onclick="fechar('mm-mural')">X</button></div>
-    <div class="mfg"><label>Titulo</label><input type="text" id="mu-ti" placeholder="Titulo da publicacao"></div>
-    <div class="mfg"><label>Texto</label><textarea id="mu-tx" placeholder="Texto da publicacao..."></textarea></div>
-    <button class="btn" onclick="salvarMural()">Publicar</button>
+    <div class="mhd"><div class="mti">Editar Perfil</div><button class="mx" onclick="fechar('mm-perfil')">X</button></div>
+    <div class="mfg"><label>Linha de pesquisa</label>
+      <select id="edit-linha">
+        <option value="L1">L1 - Monitoramento e Modelagem</option>
+        <option value="L2">L2 - Biodiversidade e Biogeoquimica</option>
+        <option value="L3">L3 - Gestao Territorial</option>
+        <option value="L1/L2">L1 e L2</option>
+        <option value="L1/L3">L1 e L3</option>
+        <option value="L2/L3">L2 e L3</option>
+        <option value="L1/L2/L3">Todas</option>
+      </select></div>
+    <div class="mfg"><label>Link do Lattes</label>
+      <input type="url" id="edit-lattes" placeholder="http://lattes.cnpq.br/..."></div>
+    <div class="mfg"><label>Link do ORCID</label>
+      <input type="url" id="edit-orcid" placeholder="https://orcid.org/0000-..."></div>
+    <div class="mfg"><label>Mini bio (opcional)</label>
+      <textarea id="edit-bio" placeholder="Breve descricao da sua atuacao no projeto..." style="min-height:60px;"></textarea></div>
+    <button class="btn" onclick="salvarPerfil()">Salvar perfil</button>
   </div>
 </div>
 
@@ -376,8 +476,11 @@ input:focus,select:focus{border-color:#378ADD;background:#fff;}
 
 <script>
 var EU = null;
-var D = {metas:[],prods:[],ativs:[],alunos:[],mural:[],mg:{}};
+var D = {metas:[],prods:[],ativs:[],alunos:[],mg:{}};
+var MURAL = [];
+var USUARIOS = [];
 var MG_SEL = null;
+var MU_FOTO_DATA = null;
 
 var MG = [
   {id:'mg01',cat:'Producao cientifica',desc:'Publicar 24 artigos Qualis A1-B1 no trienio',meta:24,unid:'artigos'},
@@ -397,45 +500,27 @@ var MG = [
 ];
 
 var EQUIPE = [
-  {sg:'AN',nm:'Amintas Nazareth Rossete',rl:'Coordenador Geral',ll:'L1/L3'},
-  {sg:'AB',nm:'Adley Bergson G. de Abreu',rl:'Pesquisador',ll:'L2'},
-  {sg:'AG',nm:'Alexandre Goncalves Porto',rl:'Pesquisador',ll:'L2/L3'},
-  {sg:'AM',nm:'Anderson M. do Amaral',rl:'Pesquisador',ll:'L1/L3'},
-  {sg:'CC',nm:'Claumir Cesar Muniz',rl:'Pesquisador',ll:'L2/L3'},
-  {sg:'EF',nm:'Erico Fernando O. Martins',rl:'Pesquisador',ll:'L1/L3'},
-  {sg:'ES',nm:'Ernandes Sobreira Oliveira Jr.',rl:'Pesquisador',ll:'L1/L2'},
-  {sg:'FA',nm:'Fatima A. da Silva Iocca',rl:'Pesquisadora',ll:'L3'},
-  {sg:'FL',nm:'Francisco Lledo dos Santos',rl:'Pesquisador',ll:'L1'},
-  {sg:'RZ',nm:'Rodrigo Bruno Zanin',rl:'Pesquisador',ll:'L1/L3'},
-  {sg:'SA',nm:'Solange A. Arrolho da Silva',rl:'Pesquisadora',ll:'L3'},
-  {sg:'SK',nm:'Solange Kimie I. Castrillon',rl:'Pesquisadora',ll:'L3'},
-  {sg:'TM',nm:'Tadeu Miranda de Queiroz',rl:'Pesquisador',ll:'L1/L2'},
-  {sg:'WL',nm:'Wilkinson Lopes Lazaro',rl:'Pesquisador',ll:'L1/L2'}
+  {sg:'AN',nm:'Amintas Nazareth Rossete',rl:'Coordenador Geral',ll:'L1/L3',email:'amintas.rossete@unemat.br'},
+  {sg:'AB',nm:'Adley Bergson G. de Abreu',rl:'Pesquisador',ll:'L2',email:'adley.abreu@unemat.br'},
+  {sg:'AG',nm:'Alexandre Goncalves Porto',rl:'Pesquisador',ll:'L2/L3',email:'alexandre.porto@unemat.br'},
+  {sg:'AM',nm:'Anderson M. do Amaral',rl:'Pesquisador',ll:'L1/L3',email:'anderson.amaral@unemat.br'},
+  {sg:'CC',nm:'Claumir Cesar Muniz',rl:'Pesquisador',ll:'L2/L3',email:'claumir.muniz@unemat.br'},
+  {sg:'EF',nm:'Erico Fernando O. Martins',rl:'Pesquisador',ll:'L1/L3',email:'erico.martins@unemat.br'},
+  {sg:'ES',nm:'Ernandes Sobreira Oliveira Jr.',rl:'Pesquisador',ll:'L1/L2',email:'ernandes.sobreira@unemat.br'},
+  {sg:'FA',nm:'Fatima A. da Silva Iocca',rl:'Pesquisadora',ll:'L3',email:'fatima.iocca@unemat.br'},
+  {sg:'FL',nm:'Francisco Lledo dos Santos',rl:'Pesquisador',ll:'L1',email:'francisco.lledo@unemat.br'},
+  {sg:'RZ',nm:'Rodrigo Bruno Zanin',rl:'Pesquisador',ll:'L1/L3',email:'rodrigo.zanin@unemat.br'},
+  {sg:'SA',nm:'Solange A. Arrolho da Silva',rl:'Pesquisadora',ll:'L3',email:'solange.arrolho@unemat.br'},
+  {sg:'SK',nm:'Solange Kimie I. Castrillon',rl:'Pesquisadora',ll:'L3',email:'solange.castrillon@unemat.br'},
+  {sg:'TM',nm:'Tadeu Miranda de Queiroz',rl:'Pesquisador',ll:'L1/L2',email:'tadeu.queiroz@unemat.br'},
+  {sg:'WL',nm:'Wilkinson Lopes Lazaro',rl:'Pesquisador',ll:'L1/L2',email:'wilkinson.lazaro@unemat.br'}
 ];
 
 var ORC = [
-  {s:'CAMPO',itens:[
-    {d:'Diarias e deslocamentos',t:126000},
-    {d:'Aluguel de embarcacoes',t:125000},
-    {d:'Material de coleta de campo',t:40000},
-    {d:'Camaras de fluxo GEE',t:40000},
-    {d:'Manutencao de estacoes',t:45000}
-  ]},
-  {s:'LABORATORIO',itens:[
-    {d:'Analises fisico-quimicas',t:105000},
-    {d:'Mercurio e metais (CV-AAS/ICP-MS)',t:60000},
-    {d:'Gases de efeito estufa (GC)',t:50000},
-    {d:'Analises biologicas',t:100000}
-  ]},
-  {s:'TECNOLOGIA',itens:[
-    {d:'GPU para deep learning',t:30000},
-    {d:'Plataformas digitais',t:0}
-  ]},
-  {s:'CUSTEIO GERAL',itens:[
-    {d:'Material de consumo geral',t:24000},
-    {d:'Publicacoes e traducoes',t:66000},
-    {d:'Eventos e capacitacoes',t:113000}
-  ]}
+  {s:'CAMPO',itens:[{d:'Diarias e deslocamentos',t:126000},{d:'Aluguel de embarcacoes',t:125000},{d:'Material de coleta',t:40000},{d:'Camaras de fluxo GEE',t:40000},{d:'Manutencao de estacoes',t:45000}]},
+  {s:'LABORATORIO',itens:[{d:'Analises fisico-quimicas',t:105000},{d:'Mercurio e metais',t:60000},{d:'Gases efeito estufa (GC)',t:50000},{d:'Analises biologicas',t:100000}]},
+  {s:'TECNOLOGIA',itens:[{d:'GPU para deep learning',t:30000},{d:'Plataformas digitais',t:0}]},
+  {s:'CUSTEIO GERAL',itens:[{d:'Material de consumo',t:24000},{d:'Publicacoes e traducoes',t:66000},{d:'Eventos e capacitacoes',t:113000}]}
 ];
 
 function G(id){return document.getElementById(id);}
@@ -450,13 +535,18 @@ function ir(id,btn){
   G('pag-'+id).classList.add('on');
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
+  if(id==='perfil')renderPerfil();
+  if(id==='mural')renderMural();
 }
 function ptab(id,btn){
   var p=btn.closest('.pag')||document.body;
   p.querySelectorAll('.ptab').forEach(function(b){b.classList.remove('on');});
   p.querySelectorAll('.ptc').forEach(function(c){c.classList.remove('on');});
-  btn.classList.add('on');
-  G(id).classList.add('on');
+  btn.classList.add('on');G(id).classList.add('on');
+}
+function lnTag(ll){
+  var map={'L1':'tb','L2':'tg','L3':'ta','L1/L2':'tb','L1/L3':'tb','L2/L3':'tg','L1/L2/L3':'tgr'};
+  return '<span class="tag '+(map[ll]||'tgr')+'">'+ll+'</span>';
 }
 
 function salvarLocal(){
@@ -466,89 +556,102 @@ function salvarLocal(){
 function carregarLocal(){
   try{var s=localStorage.getItem('pag_d_'+EU.uid);if(s)D=JSON.parse(s);}catch(e){}
   try{var mg=localStorage.getItem('pag_mg');if(mg)D.mg=JSON.parse(mg);}catch(e){}
+  try{MURAL=JSON.parse(localStorage.getItem('pag_mural')||'[]');}catch(e){}
+  try{USUARIOS=JSON.parse(localStorage.getItem('pag_usuarios')||'[]');}catch(e){}
 }
 
+// LOGIN
 function continuar(){
   var email=(G('email').value||'').trim().toLowerCase();
   G('lerr').style.display='none';
-  if(!email||email.indexOf('@')<0){
-    G('lerr').style.display='block';
-    G('lerr').textContent='E-mail invalido.';
-    return;
-  }
+  if(!email||email.indexOf('@')<0){G('lerr').style.display='block';G('lerr').textContent='E-mail invalido.';return;}
   var k='pag_u_'+email.replace(/[^a-z0-9]/g,'_');
   var loc=localStorage.getItem(k);
-  if(loc){
-    try{
-      var u=JSON.parse(loc);
-      if(u&&u.nm){EU=u;entrar();return;}
-    }catch(e){}
+  if(loc){try{var u=JSON.parse(loc);if(u&&u.nm){EU=u;entrar();return;}}catch(e){}}
+  // Detectar linha automaticamente pela equipe
+  var membro=null;
+  for(var i=0;i<EQUIPE.length;i++){if(EQUIPE[i].email===email){membro=EQUIPE[i];break;}}
+  if(membro){
+    var linhaOpts=G('linha').options;
+    for(var j=0;j<linhaOpts.length;j++){if(linhaOpts[j].value===membro.ll){linhaOpts[j].selected=true;break;}}
+    G('nome').value=membro.nm;
   }
   G('p1').style.display='none';
   G('p2').style.display='block';
 }
-
-function voltarLogin(){
-  G('p2').style.display='none';
-  G('p1').style.display='block';
-}
-
+function voltarLogin(){G('p2').style.display='none';G('p1').style.display='block';}
 function cadastrar(){
   var email=(G('email').value||'').trim().toLowerCase();
   var nm=(G('nome').value||'').trim();
   G('lerr2').style.display='none';
-  if(!nm){
-    G('lerr2').style.display='block';
-    G('lerr2').textContent='Digite seu nome.';
-    return;
-  }
-  var sg=ini(nm);
-  var rl=G('papel').value;
-  var ll=G('linha').value;
-  EU={email:email,uid:'u'+Date.now(),nm:nm,sg:sg,rl:rl,ll:ll};
+  if(!nm){G('lerr2').style.display='block';G('lerr2').textContent='Digite seu nome.';return;}
+  var sg=ini(nm);var rl=G('papel').value;var ll=G('linha').value;
+  EU={email:email,uid:'u'+Date.now(),nm:nm,sg:sg,rl:rl,ll:ll,lattes:'',orcid:'',bio:'',foto:''};
   var k='pag_u_'+email.replace(/[^a-z0-9]/g,'_');
   try{localStorage.setItem(k,JSON.stringify(EU));}catch(e){}
   try{localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
-  var lista=[];
-  try{lista=JSON.parse(localStorage.getItem('pag_usuarios')||'[]');}catch(e){}
-  lista=lista.filter(function(u){return u.email!==email;});
-  lista.push(EU);
-  try{localStorage.setItem('pag_usuarios',JSON.stringify(lista));}catch(e){}
+  USUARIOS=USUARIOS.filter(function(u){return u.email!==email;});
+  USUARIOS.push(EU);
+  try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
   entrar();
 }
-
 function sair(){
   try{localStorage.removeItem('pag_sess');}catch(e){}
   EU=null;
   G('app').style.display='none';
   G('login').style.display='flex';
-  G('email').value='';
-  G('nome').value='';
-  G('p1').style.display='block';
-  G('p2').style.display='none';
+  G('email').value='';G('nome').value='';
+  G('p1').style.display='block';G('p2').style.display='none';
 }
-
 function entrar(){
   try{localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
+  if(!EU.foto)EU.foto='';if(!EU.lattes)EU.lattes='';if(!EU.orcid)EU.orcid='';if(!EU.bio)EU.bio='';
   carregarLocal();
   G('login').style.display='none';
   G('app').style.display='flex';
   G('hnm').textContent=EU.nm.split(' ').slice(0,2).join(' ');
-  G('hav').textContent=EU.sg;
+  atualizarAvatar(G('hav'),EU);
   G('saud-p').textContent='Meu progresso - '+EU.nm.split(' ')[0];
   renderTudo();
 }
 
+function atualizarAvatar(el,u){
+  if(u&&u.foto){el.innerHTML='<img src="'+u.foto+'" style="width:100%;height:100%;object-fit:cover;">';}
+  else{el.textContent=u?u.sg:'?';}
+}
+
+// FOTO PERFIL
+function carregarFoto(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    EU.foto=e.target.result;
+    var k='pag_u_'+EU.email.replace(/[^a-z0-9]/g,'_');
+    try{localStorage.setItem(k,JSON.stringify(EU));localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
+    USUARIOS=USUARIOS.filter(function(u){return u.email!==EU.email;});
+    USUARIOS.push(EU);
+    try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
+    atualizarAvatar(G('hav'),EU);
+    renderPerfil();toast('Foto atualizada!');
+  };
+  reader.readAsDataURL(file);
+}
+
+// FOTO MURAL PREVIEW
+function previewMuralFoto(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    MU_FOTO_DATA=e.target.result;
+    G('mu-foto-preview').innerHTML='<img src="'+e.target.result+'" style="max-height:120px;border-radius:8px;max-width:100%;">';
+  };
+  reader.readAsDataURL(file);
+}
+
 function renderTudo(){
   renderInicio();
-  renderMG();
-  renderMP();
-  renderOrc();
-  renderEquipe();
-  renderProd();
-  renderAtiv();
-  renderAlunos();
-  renderMural();
+  renderMG();renderMP();renderOrc();renderEquipe();
+  renderProd();renderAtiv();renderAlunos();renderMural();
 }
 
 function renderInicio(){
@@ -558,22 +661,127 @@ function renderInicio(){
     '<div class="met"><div class="mlb">Producoes</div><div class="mvl">'+D.prods.length+'</div></div>'+
     '<div class="met"><div class="mlb">Alunos</div><div class="mvl">'+D.alunos.length+'</div></div>'+
     '<div class="met"><div class="mlb">Atividades</div><div class="mvl">'+D.ativs.length+'</div></div>'+
-    '<div class="met"><div class="mlb">No mural</div><div class="mvl">'+D.mural.length+'</div></div>';
+    '<div class="met"><div class="mlb">No mural</div><div class="mvl">'+MURAL.length+'</div></div>';
+  // Linhas com membros
+  var linhas=[
+    {id:'L1',cls:'l1',cor:'#185FA5',nome:'L1 - Monitoramento e Modelagem'},
+    {id:'L2',cls:'l2',cor:'#3B6D11',nome:'L2 - Biodiversidade e Biogeoquimica'},
+    {id:'L3',cls:'l3',cor:'#854F0B',nome:'L3 - Gestao Territorial'}
+  ];
   var p1=0,p2=0,p3=0;
   MG.forEach(function(m,i){var mp=D.mg[m.id];var p=mp?mp.pct||0:0;if(i<6)p1+=p;else if(i<10)p2+=p;else p3+=p;});
   p1=Math.round(p1/6);p2=Math.round(p2/4);p3=Math.round(p3/4);
-  G('prog-l').innerHTML=
-    '<div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;"><span>L1 - Monitoramento</span><span style="color:#185FA5">'+p1+'%</span></div><div class="pb"><div class="pf" style="width:'+p1+'%"></div></div></div>'+
-    '<div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;"><span>L2 - Biodiversidade</span><span style="color:#3B6D11">'+p2+'%</span></div><div class="pb"><div class="pf g" style="width:'+p2+'%"></div></div></div>'+
-    '<div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;"><span>L3 - Gestao</span><span style="color:#854F0B">'+p3+'%</span></div><div class="pb"><div class="pf a" style="width:'+p3+'%"></div></div></div>';
+  var pcts={L1:p1,L2:p2,L3:p3};
+  var cadastrados=USUARIOS;
+  G('linhas-membros').innerHTML=linhas.map(function(l){
+    var membrosProj=EQUIPE.filter(function(e){return e.ll.indexOf(l.id)>=0;});
+    var membrosCad=cadastrados.filter(function(u){return u.ll&&u.ll.indexOf(l.id)>=0;});
+    var pct=pcts[l.id]||0;
+    return '<div class="linha-card '+l.cls+'">'+
+      '<div class="linha-titulo">'+l.nome+'</div>'+
+      '<div class="pb" style="margin-bottom:6px;"><div class="pf" style="width:'+pct+'%;background:'+l.cor+'"></div></div>'+
+      '<div style="font-size:10px;font-weight:700;color:'+l.cor+';margin-bottom:6px;">'+pct+'% concluido</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:3px;">'+
+      membrosProj.map(function(m){
+        var cad=membrosCad.find(function(u){return u.email===m.email;});
+        var av='';
+        if(cad&&cad.foto){av='<img src="'+cad.foto+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;">';}
+        else{av='<span style="width:18px;height:18px;border-radius:50%;background:'+l.cor+';color:#fff;font-size:8px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;">'+m.sg+'</span>';}
+        var online=cad?'<span style="width:6px;height:6px;border-radius:50%;background:#3B6D11;display:inline-block;margin-left:2px;vertical-align:middle;"></span>':'';
+        return '<span class="membro-chip">'+av+' '+m.nm.split(' ')[0]+online+'</span>';
+      }).join('')+
+      '</div></div>';
+  }).join('');
   G('m-pes').innerHTML=
     '<div class="met"><div class="mlb">Metas ativas</div><div class="mvl">'+at.length+'</div></div>'+
     '<div class="met"><div class="mlb">Concluidas</div><div class="mvl" style="color:#3B6D11">'+co.length+'</div></div>';
   var pm=G('painel-metas');
   if(!at.length){pm.innerHTML='<div class="empty">Sem metas. Va em Metas > Minhas metas.</div>';return;}
   pm.innerHTML=at.slice(0,3).map(function(m){
-    return '<div style="margin-bottom:8px;"><div style="font-size:12px;font-weight:700;color:#042C53;margin-bottom:3px;">'+m.desc+'</div><div class="pb"><div class="pf '+pctC(m.pct||0)+'" style="width:'+(m.pct||0)+'%"></div></div><div style="font-size:10px;color:#888;">'+(m.pct||0)+'% - '+m.cat+'</div></div>';
+    return '<div style="margin-bottom:8px;"><div style="font-size:12px;font-weight:700;color:#042C53;margin-bottom:3px;">'+m.desc+'</div>'+
+      '<div class="pb"><div class="pf '+pctC(m.pct||0)+'" style="width:'+(m.pct||0)+'%"></div></div>'+
+      '<div style="font-size:10px;color:#888;">'+(m.pct||0)+'% - '+m.cat+'</div></div>';
   }).join('');
+}
+
+function renderMural(){
+  var el=G('lista-mural');if(!el)return;
+  if(!MURAL.length){el.innerHTML='<div class="empty">O mural esta vazio. Publique a primeira novidade!</div>';return;}
+  el.innerHTML=MURAL.slice().reverse().map(function(m,ri){
+    var i=MURAL.length-1-ri;
+    var fotoHtml='';
+    if(m.foto){fotoHtml='<img src="'+m.foto+'" class="mural-post-img" alt="foto">';}
+    else{fotoHtml='<div class="mural-post-img-placeholder">'+( m.emoji||'📢')+'</div>';}
+    var u=USUARIOS.find(function(u){return u.uid===m.uid;})||{};
+    var avHtml='';
+    if(u.foto){avHtml='<div class="av"><img src="'+u.foto+'"></div>';}
+    else{avHtml='<div class="av">'+(m.sg||ini(m.autor||'?'))+'</div>';}
+    return '<div class="mural-post">'+
+      '<div class="mural-post-hdr">'+avHtml+
+      '<div><div style="font-size:12px;font-weight:800;color:#042C53;">'+(m.autor||'')+'</div>'+
+      '<div style="font-size:10px;color:#888;">'+(m.data||'')+'</div></div>'+
+      (m.uid===EU.uid?'<button class="bd" style="margin-left:auto;" onclick="delMural('+i+')">X</button>':'')+'</div>'+
+      fotoHtml+
+      '<div class="mural-post-body">'+
+      '<div class="mural-post-titulo">'+m.titulo+'</div>'+
+      (m.texto?'<div class="mural-post-texto">'+m.texto+'</div>':'')+'</div></div>';
+  }).join('');
+}
+
+function renderPerfil(){
+  if(!EU)return;
+  var av=G('perfil-av');
+  if(EU.foto){av.innerHTML='<img src="'+EU.foto+'" style="width:72px;height:72px;object-fit:cover;">';}
+  else{av.textContent=EU.sg;}
+  G('perfil-nm').textContent=EU.nm;
+  G('perfil-rl').textContent=EU.rl;
+  G('perfil-linha-tag').innerHTML=lnTag(EU.ll);
+  var meusProd=D.prods.length;
+  var meusAlunos=D.alunos.length;
+  var minhasAt=D.metas.filter(function(m){return m.status!=='concluida';}).length;
+  G('perfil-stats').innerHTML=
+    '<div class="met"><div class="mlb">Producoes</div><div class="mvl">'+meusProd+'</div></div>'+
+    '<div class="met"><div class="mlb">Alunos</div><div class="mvl">'+meusAlunos+'</div></div>'+
+    '<div class="met"><div class="mlb">Metas ativas</div><div class="mvl">'+minhasAt+'</div></div>'+
+    '<div class="met"><div class="mlb">No mural</div><div class="mvl">'+MURAL.filter(function(m){return m.uid===EU.uid;}).length+'</div></div>';
+  // Links
+  var lv=G('perfil-links-view');
+  var links='';
+  if(EU.bio){links+='<div style="font-size:12px;color:#5F5E5A;line-height:1.6;margin-bottom:.75rem;padding:.75rem;background:#EEF5FF;border-radius:8px;">'+EU.bio+'</div>';}
+  if(EU.lattes){links+='<a href="'+EU.lattes+'" target="_blank" class="perfil-link"><span>Curriculo Lattes</span><span style="font-size:14px;">-&gt;</span></a>';}
+  else{links+='<div style="font-size:11px;color:#aaa;padding:.5rem;">Lattes nao cadastrado. Clique em Editar perfil.</div>';}
+  if(EU.orcid){links+='<a href="'+EU.orcid+'" target="_blank" class="perfil-link"><span>ORCID</span><span style="font-size:14px;">-&gt;</span></a>';}
+  else{links+='<div style="font-size:11px;color:#aaa;padding:.5rem;">ORCID nao cadastrado. Clique em Editar perfil.</div>';}
+  lv.innerHTML=links;
+  // Producoes recentes
+  var pp=G('perfil-prods');
+  if(!D.prods.length){pp.innerHTML='<div class="empty">Nenhuma producao cadastrada ainda.</div>';return;}
+  pp.innerHTML=D.prods.slice(0,3).map(function(p){
+    return '<div style="padding:7px 0;border-bottom:.5px solid #EEF5FF;">'+
+      '<div style="font-size:12px;font-weight:700;color:#042C53;">'+p.titulo+'</div>'+
+      '<div style="font-size:11px;color:#888;">'+p.tipo+' - '+p.status+'</div></div>';
+  }).join('');
+  // Preencher modal de edição
+  G('edit-linha').value=EU.ll||'L1';
+  G('edit-lattes').value=EU.lattes||'';
+  G('edit-orcid').value=EU.orcid||'';
+  G('edit-bio').value=EU.bio||'';
+}
+
+function salvarPerfil(){
+  EU.ll=G('edit-linha').value;
+  EU.lattes=G('edit-lattes').value;
+  EU.orcid=G('edit-orcid').value;
+  EU.bio=G('edit-bio').value;
+  EU.sg=ini(EU.nm);
+  var k='pag_u_'+EU.email.replace(/[^a-z0-9]/g,'_');
+  try{localStorage.setItem(k,JSON.stringify(EU));localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
+  USUARIOS=USUARIOS.filter(function(u){return u.email!==EU.email;});
+  USUARIOS.push(EU);
+  try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
+  fechar('mm-perfil');
+  renderPerfil();renderInicio();
+  toast('Perfil atualizado!');
 }
 
 function renderMG(){
@@ -597,8 +805,7 @@ function renderMG(){
 
 function abrirMG(id){
   MG_SEL=id;
-  var m=null;
-  for(var i=0;i<MG.length;i++){if(MG[i].id===id){m=MG[i];break;}}
+  var m=null;for(var i=0;i<MG.length;i++){if(MG[i].id===id){m=MG[i];break;}}
   if(!m)return;
   var mp=D.mg[id]||{};
   G('mm-mg-desc').textContent=m.desc+' (meta: '+m.meta+' '+m.unid+')';
@@ -658,20 +865,26 @@ function renderOrc(){
 function renderEquipe(){
   var ep=G('eq-proj');if(!ep)return;
   ep.innerHTML=EQUIPE.map(function(m){
+    var cad=USUARIOS.find(function(u){return u.email===m.email;});
+    var avHtml='';
+    if(cad&&cad.foto){avHtml='<div class="av"><img src="'+cad.foto+'"></div>';}
+    else{avHtml='<div class="av">'+m.sg+'</div>';}
     return '<div style="display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:.5px solid #EEF5FF;">'+
-      '<div class="av">'+m.sg+'</div>'+
-      '<div><div style="font-weight:700;font-size:12px;color:#042C53;">'+m.nm+'</div>'+
-      '<div style="font-size:11px;color:#185FA5;">'+m.rl+' - '+m.ll+'</div></div></div>';
+      avHtml+'<div style="flex:1;">'+
+      '<div style="font-weight:700;font-size:12px;color:#042C53;">'+m.nm+'</div>'+
+      '<div style="font-size:11px;color:#185FA5;">'+m.rl+' '+(lnTag(m.ll))+'</div></div>'+
+      (cad?'<span style="width:8px;height:8px;border-radius:50%;background:#3B6D11;display:inline-block;" title="Na plataforma"></span>':'')+'</div>';
   }).join('');
   var eplat=G('eq-plat');if(!eplat)return;
-  var lista=[];
-  try{lista=JSON.parse(localStorage.getItem('pag_usuarios')||'[]');}catch(e){}
-  if(!lista.length){eplat.innerHTML='<div class="empty">Nenhum membro cadastrado ainda.</div>';return;}
-  eplat.innerHTML=lista.map(function(u){
+  if(!USUARIOS.length){eplat.innerHTML='<div class="empty">Nenhum membro cadastrado ainda.</div>';return;}
+  eplat.innerHTML=USUARIOS.map(function(u){
+    var avHtml='';
+    if(u.foto){avHtml='<div class="av"><img src="'+u.foto+'"></div>';}
+    else{avHtml='<div class="av">'+(u.sg||ini(u.nm))+'</div>';}
     return '<div style="display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:.5px solid #EEF5FF;">'+
-      '<div class="av">'+(u.sg||ini(u.nm))+'</div>'+
-      '<div><div style="font-weight:700;font-size:12px;color:#042C53;">'+u.nm+'</div>'+
-      '<div style="font-size:11px;color:#185FA5;">'+(u.rl||'')+' - '+(u.ll||'')+'</div>'+
+      avHtml+'<div style="flex:1;">'+
+      '<div style="font-weight:700;font-size:12px;color:#042C53;">'+u.nm+'</div>'+
+      '<div style="font-size:11px;color:#185FA5;">'+(u.rl||'')+' '+lnTag(u.ll||'')+'</div>'+
       '<div style="font-size:10px;color:#888;">'+(u.email||'')+'</div></div></div>';
   }).join('');
 }
@@ -715,17 +928,21 @@ function renderAlunos(){
   }).join('');
 }
 
-function renderMural(){
-  var el=G('lista-mural');if(!el)return;
-  var todos=[];
-  try{todos=JSON.parse(localStorage.getItem('pag_mural')||'[]');}catch(e){}
-  if(!todos.length){el.innerHTML='<div class="empty">O mural esta vazio. Publique!</div>';return;}
-  el.innerHTML=todos.slice().reverse().map(function(m,i){
-    return '<div class="card" style="margin-bottom:.5rem;">'+
-      '<div style="font-size:11px;font-weight:700;color:#185FA5;margin-bottom:2px;">'+(m.autor||'')+' - '+(m.data||'')+'</div>'+
-      '<div style="font-size:14px;font-weight:800;color:#042C53;margin-bottom:5px;">'+m.titulo+'</div>'+
-      '<div style="font-size:12px;color:#888;line-height:1.6;">'+(m.texto||'')+'</div></div>';
-  }).join('');
+function salvarMural(){
+  var t=(G('mu-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
+  MURAL.push({titulo:t,texto:G('mu-tx').value,foto:MU_FOTO_DATA||'',emoji:'📢',autor:EU.nm,sg:EU.sg,uid:EU.uid,data:new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'})});
+  try{localStorage.setItem('pag_mural',JSON.stringify(MURAL));}catch(e){}
+  fechar('mm-mural');G('mu-ti').value='';G('mu-tx').value='';
+  G('mu-foto-preview').textContent='Toque para selecionar uma foto';
+  MU_FOTO_DATA=null;
+  renderMural();renderInicio();toast('Publicado!');
+}
+
+function delMural(i){
+  if(!confirm('Remover?'))return;
+  MURAL.splice(i,1);
+  try{localStorage.setItem('pag_mural',JSON.stringify(MURAL));}catch(e){}
+  renderMural();renderInicio();toast('Removido.');
 }
 
 function salvarProd(){
@@ -733,43 +950,24 @@ function salvarProd(){
   D.prods.push({tipo:G('pd-t').value,titulo:t,autores:G('pd-a').value,veiculo:G('pd-v').value,status:G('pd-s').value});
   salvarLocal();fechar('mm-prod');G('pd-ti').value='';renderProd();renderInicio();toast('Salvo!');
 }
-
 function salvarAtiv(){
   var t=(G('at-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
   D.ativs.push({tipo:G('at-t').value,titulo:t,data:G('at-d').value,local:G('at-l').value,alunos:G('at-al').value,desc:G('at-de').value,autor:EU.nm});
   salvarLocal();fechar('mm-ativ');G('at-ti').value='';renderAtiv();renderInicio();toast('Registrado!');
 }
-
 function salvarAluno(){
   var n=(G('aln-n').value||'').trim();if(!n){toast('Informe o nome.');return;}
   D.alunos.push({nm:n,titulo:G('aln-t').value,linha:G('aln-l').value,defesa:G('aln-def').value});
   salvarLocal();fechar('mm-aln');G('aln-n').value='';renderAlunos();renderInicio();toast('Cadastrado!');
 }
-
-function salvarMural(){
-  var t=(G('mu-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
-  var todos=[];
-  try{todos=JSON.parse(localStorage.getItem('pag_mural')||'[]');}catch(e){}
-  todos.push({titulo:t,texto:G('mu-tx').value,autor:EU.nm,uid:EU.uid,data:new Date().toLocaleDateString('pt-BR',{month:'short',year:'numeric'})});
-  try{localStorage.setItem('pag_mural',JSON.stringify(todos));}catch(e){}
-  fechar('mm-mural');G('mu-ti').value='';renderMural();toast('Publicado!');
-}
-
 function delD(col,i){if(!confirm('Remover?'))return;D[col].splice(i,1);salvarLocal();renderTudo();}
 
 // INICIAR
 try{
   var sess=localStorage.getItem('pag_sess');
-  if(sess){
-    var u=JSON.parse(sess);
-    if(u&&u.nm){EU=u;entrar();}
-    else{G('login').style.display='flex';}
-  }else{
-    G('login').style.display='flex';
-  }
-}catch(e){
-  G('login').style.display='flex';
-}
+  if(sess){var u=JSON.parse(sess);if(u&&u.nm){EU=u;entrar();}else{G('login').style.display='flex';}}
+  else{G('login').style.display='flex';}
+}catch(e){G('login').style.display='flex';}
 </script>
 </body>
 </html>
