@@ -721,9 +721,11 @@ function cadastrar(){
   try{localStorage.setItem(k,JSON.stringify(EU));}catch(e){}
   try{localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
   // Save user to Firestore
-  db.collection('usuarios').doc(EU.uid).set({
+  // Use email-based key to prevent duplicates
+  var emailKey=email.replace(/[^a-z0-9]/g,'_');
+  db.collection('usuarios').doc(emailKey).set({
     email:email,nm:nm,sg:sg,rl:rl,ll:ll,
-    lattes:'',orcid:'',bio:'',foto:'',
+    lattes:'',orcid:'',bio:'',foto:'',uid:EU.uid,
     ts:firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(e){console.warn('save user',e);});
   entrar();
@@ -772,7 +774,7 @@ function carregarFoto(input){
     try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
     atualizarAvatar(G('hav'),EU);
     // Update foto in Firestore
-    db.collection('usuarios').doc(EU.uid).update({foto:EU.foto})
+    var fk=EU.email.replace(/[^a-z0-9]/g,'_');db.collection('usuarios').doc(fk).update({foto:EU.foto})
       .catch(function(e){console.warn('foto update',e);});
     renderPerfil();toast('Foto atualizada!');
   };
@@ -816,37 +818,28 @@ function renderInicio(){
   var pcts={L1:p1,L2:p2,L3:p3};
   var cadastrados=USUARIOS;
   G('linhas-membros').innerHTML=linhas.map(function(l){
-    var membrosProj=EQUIPE.filter(function(e){
-      // Always use EQUIPE's fixed ll (the project definition)
-      return e.ll===l.id||e.ll.split('/').indexOf(l.id)>=0;
-    });
-    // Registered users on this line (by their own chosen ll)
+    // Only registered users who chose this line
     var membrosCad=cadastrados.filter(function(u){
       if(!u.ll)return false;
       return u.ll===l.id||u.ll.split('/').indexOf(l.id)>=0;
     });
     var pct=pcts[l.id]||0;
+    var chips='';
+    if(membrosCad.length){
+      chips=membrosCad.map(function(u){
+        var av='';
+        if(u.foto){av='<img src="'+u.foto+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;">';}
+        else{av='<span style="width:18px;height:18px;border-radius:50%;background:'+l.cor+';color:#fff;font-size:8px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;">'+(u.sg||'?')+'</span>';}
+        return '<span class="membro-chip">'+av+' '+u.nm.split(' ')[0]+'</span>';
+      }).join('');
+    } else {
+      chips='<span style="font-size:11px;color:#aaa;font-style:italic;">Nenhum membro cadastrado nesta linha ainda.</span>';
+    }
     return '<div class="linha-card '+l.cls+'">'+
       '<div class="linha-titulo">'+l.nome+'</div>'+
       '<div class="pb" style="margin-bottom:6px;"><div class="pf" style="width:'+pct+'%;background:'+l.cor+'"></div></div>'+
       '<div style="font-size:10px;font-weight:700;color:'+l.cor+';margin-bottom:6px;">'+pct+'% concluido</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:3px;">'+
-      membrosProj.map(function(m){
-        // Check if this EQUIPE member is registered by name similarity or email
-        // Match by email OR by last name (more reliable than first name)
-        var cad=membrosCad.find(function(u){
-          if(u.email===m.email) return true;
-          var uWords=u.nm.toLowerCase().split(' ').filter(function(w){return w.length>3;});
-          var mWords=m.nm.toLowerCase().split(' ').filter(function(w){return w.length>3;});
-          return uWords.some(function(w){return mWords.indexOf(w)>=0;});
-        });
-        var av='';
-        if(cad&&cad.foto){av='<img src="'+cad.foto+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;">';}
-        else{av='<span style="width:18px;height:18px;border-radius:50%;background:'+l.cor+';color:#fff;font-size:8px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;">'+m.sg+'</span>';}
-        var online=cad?'<span style="width:6px;height:6px;border-radius:50%;background:#3B6D11;display:inline-block;margin-left:2px;vertical-align:middle;" title="Na plataforma"></span>':'';
-        return '<span class="membro-chip">'+av+' '+m.nm.split(' ')[0]+online+'</span>';
-      }).join('')+
-      '</div></div>';
+      '<div style="display:flex;flex-wrap:wrap;gap:3px;">'+chips+'</div></div>';
   }).join('');
   G('m-pes').innerHTML=
     '<div class="met"><div class="mlb">Metas ativas</div><div class="mvl">'+at.length+'</div></div>'+
@@ -933,9 +926,10 @@ function salvarPerfil(){
   var k='pag_u_'+EU.email.replace(/[^a-z0-9]/g,'_');
   try{localStorage.setItem(k,JSON.stringify(EU));localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
   // Update Firestore
-  db.collection('usuarios').doc(EU.uid).set({
+  var emailKey=EU.email.replace(/[^a-z0-9]/g,'_');
+  db.collection('usuarios').doc(emailKey).set({
     email:EU.email,nm:EU.nm,sg:EU.sg,rl:EU.rl,ll:EU.ll,
-    lattes:EU.lattes,orcid:EU.orcid,bio:EU.bio,foto:EU.foto,
+    lattes:EU.lattes,orcid:EU.orcid,bio:EU.bio,foto:EU.foto,uid:EU.uid,
     ts:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true}).catch(function(e){console.warn('update user',e);});
   fechar('mm-perfil');
