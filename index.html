@@ -518,16 +518,22 @@ function continuar(){
   if(!email||email.indexOf('@')<0){lerr('Digite um e-mail valido.');return;}
   lerr('');
   var btn=G('p1').querySelector('.btn');
-  btn.textContent='Verificando...';btn.disabled=true;
+  btn.textContent='Buscando...';btn.disabled=true;lerr('');
   var k='pau_'+email.replace(/\W/g,'_');
   var loc=localStorage.getItem(k);
   if(loc){
     try{EU=JSON.parse(loc);btn.textContent='Continuar';btn.disabled=false;entrar();return;}
     catch(e){}
   }
+  var timeout=setTimeout(function(){
+    btn.textContent='Continuar';btn.disabled=false;
+    lerr('Conexao lenta - preencha seu nome para continuar');
+    G('p1').style.display='none';
+    G('p2').style.display='block';
+  },5000);
   db.collection('usuarios').where('email','==',email).limit(1).get()
     .then(function(s){
-      btn.textContent='Continuar';btn.disabled=false;
+      clearTimeout(timeout);btn.textContent='Continuar';btn.disabled=false;
       if(!s.empty){
         var d=s.docs[0].data();
         EU={email:email,uid:s.docs[0].id,nm:d.nm,sg:d.sg||ini(d.nm),rl:d.rl,ll:d.ll};
@@ -535,12 +541,15 @@ function continuar(){
         localStorage.setItem('pa_s',JSON.stringify(EU));
         entrar();
       } else {
+        // Novo usuario - mostrar cadastro
         G('p1').style.display='none';
         G('p2').style.display='block';
       }
     })
-    .catch(function(){
-      btn.textContent='Continuar';btn.disabled=false;
+    .catch(function(err){
+      clearTimeout(timeout);btn.textContent='Continuar';btn.disabled=false;
+      // Firestore falhou - ir direto para cadastro
+      lerr('Banco offline - preencha seu nome para entrar');
       G('p1').style.display='none';
       G('p2').style.display='block';
     });
