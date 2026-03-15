@@ -812,12 +812,10 @@ function renderInicio(){
   var cadastrados=USUARIOS;
   G('linhas-membros').innerHTML=linhas.map(function(l){
     var membrosProj=EQUIPE.filter(function(e){
-      // Use registered user's ll if they are on the platform, otherwise use EQUIPE ll
-      var cad=cadastrados.find(function(u){return u.email===e.email;});
-      var ll=cad?cad.ll:e.ll;
-      // Exact match: 'L1' in ['L1','L1/L2','L1/L3','L1/L2/L3']
-      return ll===l.id||ll.split('/').indexOf(l.id)>=0;
+      // Always use EQUIPE's fixed ll (the project definition)
+      return e.ll===l.id||e.ll.split('/').indexOf(l.id)>=0;
     });
+    // Registered users on this line (by their own chosen ll)
     var membrosCad=cadastrados.filter(function(u){
       if(!u.ll)return false;
       return u.ll===l.id||u.ll.split('/').indexOf(l.id)>=0;
@@ -829,11 +827,16 @@ function renderInicio(){
       '<div style="font-size:10px;font-weight:700;color:'+l.cor+';margin-bottom:6px;">'+pct+'% concluido</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:3px;">'+
       membrosProj.map(function(m){
-        var cad=membrosCad.find(function(u){return u.email===m.email;});
+        // Check if this EQUIPE member is registered by name similarity or email
+        var cad=membrosCad.find(function(u){
+          return u.email===m.email||
+            u.nm.toLowerCase().indexOf(m.nm.split(' ')[0].toLowerCase())>=0||
+            m.nm.toLowerCase().indexOf(u.nm.split(' ')[0].toLowerCase())>=0;
+        });
         var av='';
         if(cad&&cad.foto){av='<img src="'+cad.foto+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;">';}
         else{av='<span style="width:18px;height:18px;border-radius:50%;background:'+l.cor+';color:#fff;font-size:8px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;">'+m.sg+'</span>';}
-        var online=cad?'<span style="width:6px;height:6px;border-radius:50%;background:#3B6D11;display:inline-block;margin-left:2px;vertical-align:middle;"></span>':'';
+        var online=cad?'<span style="width:6px;height:6px;border-radius:50%;background:#3B6D11;display:inline-block;margin-left:2px;vertical-align:middle;" title="Na plataforma"></span>':'';
         return '<span class="membro-chip">'+av+' '+m.nm.split(' ')[0]+online+'</span>';
       }).join('')+
       '</div></div>';
