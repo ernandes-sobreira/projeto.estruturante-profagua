@@ -566,6 +566,9 @@ var MURAL = [];
 var USUARIOS = [];
 var MG_SEL = null;
 var MU_FOTO_DATA = null;
+var PD_PDF_DATA = null;
+var LOTE_FILES = [];
+var BANCAS = [];
 
 var MG = [
   {id:'mg01',cat:'Producao cientifica',desc:'Publicar 24 artigos Qualis A1-B1 no trienio',meta:24,unid:'artigos'},
@@ -1052,7 +1055,7 @@ function renderAtiv(){
       '<div style="font-size:13px;font-weight:700;color:#042C53;margin-top:2px;">'+a.titulo+'</div>'+
       (a.local?'<div style="font-size:11px;color:#888;">Local: '+a.local+'</div>':'')+
       (a.alunos?'<div style="font-size:11px;color:#888;">Alunos: '+a.alunos+'</div>':'')+
-      '<div style="text-align:right;margin-top:5px;"><button class="bd" onclick="delD(\'ativs\','+i+')">X</button></div></div>';
+      '<div style="text-align:right;margin-top:5px;">'+(a.uid===EU.uid?'<button class="bd" onclick="delD(\'ativs\',\''+a.fid+'\',\''+a.uid+'\')" >X</button>':'')+'</div></div>';
   }).join('');
 }
 
@@ -1142,9 +1145,6 @@ function delD(col,fid,uid){
 
 
 // ── PRODUCOES: PDF + LOTE ──────────────────────────────────────────────────
-var PD_PDF_DATA = null;
-var LOTE_FILES = [];
-
 function trocarTabProd(tab,btn){
   document.querySelectorAll('#mm-prod .ptab').forEach(function(b){b.classList.remove('on');});
   btn.classList.add('on');
@@ -1205,8 +1205,6 @@ function salvarLote(){
 }
 
 // ── BANCAS ──────────────────────────────────────────────────────────────────
-var BANCAS = [];
-
 function ligarBancas(){
   db.collection('bancas').orderBy('ts_banca','asc').onSnapshot(function(s){
     BANCAS=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
