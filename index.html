@@ -174,6 +174,7 @@ input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
     <button class="nb" onclick="ir('producoes',this)">Producoes</button>
     <button class="nb" onclick="ir('atividades',this)">Atividades</button>
     <button class="nb" onclick="ir('alunos',this)">Alunos</button>
+    <button class="nb" onclick="ir('bancas',this)">Bancas</button>
     <button class="nb" onclick="ir('perfil',this)">Meu Perfil</button>
   </div>
 
@@ -342,6 +343,20 @@ input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
     <div id="lista-aln"></div>
   </div>
 
+
+  <!-- BANCAS -->
+  <div class="pag" id="pag-bancas">
+    <div class="row">
+      <div class="ph" style="margin:0">Bancas PROFAGUA</div>
+      <button class="ba" onclick="abrirBanca()">+ Cadastrar</button>
+    </div>
+    <div class="ptabs">
+      <button class="ptab on" onclick="ptab('bc-prox',this)">Proximas</button>
+      <button class="ptab" onclick="ptab('bc-real',this)">Realizadas</button>
+    </div>
+    <div class="ptc on" id="bc-prox"><div id="lista-bancas-prox"></div></div>
+    <div class="ptc" id="bc-real"><div id="lista-bancas-real"></div></div>
+  </div>
   <!-- MEU PERFIL -->
   <div class="pag" id="pag-perfil">
     <div class="ph">Meu Perfil</div>
@@ -412,14 +427,50 @@ input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
 <div class="mb" id="mm-prod" onclick="if(event.target.id=='mm-prod')fechar('mm-prod')">
   <div class="mbox">
     <div class="mhd"><div class="mti">Nova Producao</div><button class="mx" onclick="fechar('mm-prod')">X</button></div>
-    <div class="mfg"><label>Tipo</label>
-      <select id="pd-t"><option value="artigo">Artigo</option><option value="capitulo">Capitulo</option><option value="resumo">Resumo/Congresso</option><option value="software">Software</option><option value="relatorio">Relatorio</option></select></div>
-    <div class="mfg"><label>Titulo</label><input type="text" id="pd-ti" placeholder="Titulo completo"></div>
-    <div class="mfg"><label>Autores</label><input type="text" id="pd-a" placeholder="Sobrenome, N.; ..."></div>
-    <div class="mfg"><label>Periodico / Evento</label><input type="text" id="pd-v" placeholder="Ex: Hydrobiologia"></div>
-    <div class="mfg"><label>Status</label>
-      <select id="pd-s"><option>Em preparacao</option><option>Submetido</option><option>Aceito</option><option>Publicado</option></select></div>
-    <button class="btn" onclick="salvarProd()">Salvar</button>
+    <div class="ptabs" style="margin-bottom:.75rem;">
+      <button class="ptab on" id="tab-unit" onclick="trocarTabProd('unit',this)">Individual</button>
+      <button class="ptab" id="tab-lote" onclick="trocarTabProd('lote',this)">Em lote (varios PDFs)</button>
+    </div>
+    <!-- INDIVIDUAL -->
+    <div id="prod-unit">
+      <div class="mfg"><label>Tipo</label>
+        <select id="pd-t"><option value="artigo">Artigo cientifico</option><option value="capitulo">Capitulo de livro</option><option value="resumo">Resumo/Congresso</option><option value="software">Software/Plataforma</option><option value="relatorio">Relatorio tecnico</option><option value="ebook">E-book</option></select></div>
+      <div class="mfg"><label>Titulo completo</label><input type="text" id="pd-ti" placeholder="Titulo da producao"></div>
+      <div class="mfg"><label>Autores</label><input type="text" id="pd-a" placeholder="Sobrenome, N.; Sobrenome, N."></div>
+      <div class="mfg"><label>Periodico / Evento / Editora</label><input type="text" id="pd-v" placeholder="Ex: Hydrobiologia, SBRH 2026"></div>
+      <div class="mfg"><label>DOI / URL</label><input type="url" id="pd-doi" placeholder="https://doi.org/..."></div>
+      <div class="mfg"><label>Ano</label><input type="number" id="pd-ano" placeholder="2026" value="2026" min="2020" max="2030"></div>
+      <div class="mfg"><label>Status</label>
+        <select id="pd-s"><option>Em preparacao</option><option>Submetido</option><option>Aceito</option><option>Publicado</option></select></div>
+      <div class="mfg">
+        <label>Arquivo PDF (upload, max 5MB)</label>
+        <div style="border:1.5px dashed #C8DDF5;border-radius:10px;padding:.75rem;text-align:center;cursor:pointer;background:#E6F1FB;" onclick="G('pd-pdf').click()">
+          <div id="pd-pdf-preview" style="font-size:11px;color:#5F5E5A;">Toque para selecionar PDF</div>
+          <input type="file" id="pd-pdf" accept=".pdf,.doc,.docx,.xlsx,.pptx" style="display:none" onchange="previewPDF(this,'pd-pdf-preview')">
+        </div>
+        <div style="text-align:center;font-size:11px;color:#888;margin:.4rem 0;">— ou —</div>
+        <input type="url" id="pd-link" placeholder="Link (Google Drive, Dropbox, etc.)">
+      </div>
+      <button class="btn" onclick="salvarProd()">Salvar producao</button>
+    </div>
+    <!-- LOTE -->
+    <div id="prod-lote" style="display:none;">
+      <div style="background:#E6F1FB;border-radius:10px;padding:.9rem;font-size:12px;color:#185FA5;margin-bottom:.75rem;line-height:1.6;">
+        Selecione varios PDFs de uma vez. O nome de cada arquivo sera usado como titulo. Voce pode editar os detalhes depois.
+      </div>
+      <div class="mfg"><label>Tipo padrao</label>
+        <select id="pd-lote-t"><option value="artigo">Artigo cientifico</option><option value="capitulo">Capitulo de livro</option><option value="relatorio">Relatorio tecnico</option><option value="ebook">E-book</option></select></div>
+      <div class="mfg">
+        <label>Selecionar arquivos (PDF, DOCX, etc.)</label>
+        <div style="border:1.5px dashed #378ADD;border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;background:#E6F1FB;" onclick="G('pd-lote-files').click()">
+          <div style="font-size:28px;margin-bottom:6px;">📁</div>
+          <div id="pd-lote-preview" style="font-size:12px;color:#185FA5;font-weight:700;">Toque para selecionar varios arquivos</div>
+          <input type="file" id="pd-lote-files" accept=".pdf,.doc,.docx,.xlsx,.pptx" multiple style="display:none" onchange="previewLote(this)">
+        </div>
+      </div>
+      <div id="pd-lote-lista" style="margin-bottom:.75rem;"></div>
+      <button class="btn" onclick="salvarLote()" id="btn-salvar-lote" style="display:none;">Salvar todos</button>
+    </div>
   </div>
 </div>
 
@@ -469,6 +520,30 @@ input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
     <div class="mfg"><label>Mini bio (opcional)</label>
       <textarea id="edit-bio" placeholder="Breve descricao da sua atuacao no projeto..." style="min-height:60px;"></textarea></div>
     <button class="btn" onclick="salvarPerfil()">Salvar perfil</button>
+  </div>
+</div>
+
+
+<div class="mb" id="mm-banca" onclick="if(event.target.id=='mm-banca')fechar('mm-banca')">
+  <div class="mbox">
+    <div class="mhd"><div class="mti" id="mm-banca-ti">Cadastrar Banca</div><button class="mx" onclick="fechar('mm-banca')">X</button></div>
+    <input type="hidden" id="bc-fid" value="">
+    <div class="mfg"><label>Aluno(a)</label><input type="text" id="bc-aluno" placeholder="Nome completo do aluno"></div>
+    <div class="mfg"><label>Titulo da dissertacao</label><input type="text" id="bc-titulo" placeholder="Titulo completo"></div>
+    <div class="mfg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div><label>Data</label><input type="date" id="bc-data"></div>
+      <div><label>Hora</label><input type="time" id="bc-hora" value="09:00"></div>
+    </div>
+    <div class="mfg"><label>Local / Plataforma</label><input type="text" id="bc-local" placeholder="Ex: Sala 201 ou Google Meet"></div>
+    <div class="mfg"><label>Membros da banca (separados por virgula)</label>
+      <textarea id="bc-membros" placeholder="Ex: Prof. Amintas (presidente), Prof. Ernandes, Dr. Fulano (externo)" style="min-height:70px;"></textarea></div>
+    <div class="mfg"><label>Linha de pesquisa</label>
+      <select id="bc-linha">
+        <option value="L1">L1 - Monitoramento e Modelagem</option>
+        <option value="L2">L2 - Biodiversidade e Biogeoquimica</option>
+        <option value="L3">L3 - Gestao Territorial</option>
+      </select></div>
+    <button class="btn" onclick="salvarBanca()">Salvar banca</button>
   </div>
 </div>
 
@@ -597,6 +672,8 @@ function ligarFirestore(){
     D.alunos=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
     renderAlunos();renderInicio();renderPerfil();
   },function(e){console.warn('alunos',e.code);});
+  // BANCAS
+  ligarBancas();
   // METAS PROJETO
   db.collection('metas_proj').onSnapshot(function(s){
     s.docs.forEach(function(d){D.mg[d.id]=d.data();});
@@ -724,8 +801,17 @@ function renderInicio(){
   var pcts={L1:p1,L2:p2,L3:p3};
   var cadastrados=USUARIOS;
   G('linhas-membros').innerHTML=linhas.map(function(l){
-    var membrosProj=EQUIPE.filter(function(e){return e.ll.indexOf(l.id)>=0;});
-    var membrosCad=cadastrados.filter(function(u){return u.ll&&u.ll.indexOf(l.id)>=0;});
+    var membrosProj=EQUIPE.filter(function(e){
+      // Use registered user's ll if they are on the platform, otherwise use EQUIPE ll
+      var cad=cadastrados.find(function(u){return u.email===e.email;});
+      var ll=cad?cad.ll:e.ll;
+      // Exact match: 'L1' in ['L1','L1/L2','L1/L3','L1/L2/L3']
+      return ll===l.id||ll.split('/').indexOf(l.id)>=0;
+    });
+    var membrosCad=cadastrados.filter(function(u){
+      if(!u.ll)return false;
+      return u.ll===l.id||u.ll.split('/').indexOf(l.id)>=0;
+    });
     var pct=pcts[l.id]||0;
     return '<div class="linha-card '+l.cls+'">'+
       '<div class="linha-titulo">'+l.nome+'</div>'+
@@ -1006,12 +1092,27 @@ function delMural(fid,uid){
 
 function salvarProd(){
   var t=(G('pd-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
-  db.collection('producoes').add({
+  var btn=G('prod-unit').querySelector('.btn');
+  btn.textContent='Salvando...';btn.disabled=true;
+  var dadosBase={
     tipo:G('pd-t').value,titulo:t,autores:G('pd-a').value,
     veiculo:G('pd-v').value,status:G('pd-s').value,
+    doi:G('pd-doi').value,ano:G('pd-ano').value,
+    link:G('pd-link').value,
     uid:EU.uid,autor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){fechar('mm-prod');G('pd-ti').value='';toast('Salvo!');})
-  .catch(function(e){toast('Erro: '+e.message);});
+  };
+  if(PD_PDF_DATA){
+    dadosBase.arquivo=PD_PDF_DATA;
+    PD_PDF_DATA=null;
+  }
+  db.collection('producoes').add(dadosBase)
+    .then(function(){
+      fechar('mm-prod');G('pd-ti').value='';G('pd-doi').value='';G('pd-link').value='';
+      G('pd-pdf-preview').textContent='Toque para selecionar PDF';
+      btn.textContent='Salvar producao';btn.disabled=false;
+      toast('Salvo!');
+    })
+    .catch(function(e){btn.textContent='Salvar producao';btn.disabled=false;toast('Erro: '+e.message);});
 }
 function salvarAtiv(){
   var t=(G('at-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
@@ -1037,6 +1138,170 @@ function delD(col,fid,uid){
   db.collection(colMap[col]).doc(fid).delete()
     .then(function(){toast('Removido.');})
     .catch(function(e){toast('Erro: '+e.message);});
+}
+
+
+// ── PRODUCOES: PDF + LOTE ──────────────────────────────────────────────────
+var PD_PDF_DATA = null;
+var LOTE_FILES = [];
+
+function trocarTabProd(tab,btn){
+  document.querySelectorAll('#mm-prod .ptab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  G('prod-unit').style.display = tab==='unit'?'block':'none';
+  G('prod-lote').style.display = tab==='lote'?'block':'none';
+}
+
+function previewPDF(input,previewId){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){PD_PDF_DATA=e.target.result;};
+  reader.readAsDataURL(file);
+  G(previewId).innerHTML='<span style="color:#3B6D11;font-weight:700;">✓ '+file.name+'</span>';
+}
+
+function previewLote(input){
+  LOTE_FILES=Array.from(input.files);
+  if(!LOTE_FILES.length)return;
+  G('pd-lote-preview').textContent=LOTE_FILES.length+' arquivo(s) selecionado(s)';
+  G('pd-lote-lista').innerHTML=LOTE_FILES.map(function(f,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid #EEF5FF;">'+
+      '<span style="font-size:16px;">📄</span>'+
+      '<input type="text" value="'+f.name.replace(/\.[^.]+$/,'')+'" id="lote-titulo-'+i+'" '+
+      'style="flex:1;border:.5px solid #C8DDF5;border-radius:8px;padding:6px 10px;font-size:12px;background:#E6F1FB;outline:none;">'+
+      '</div>';
+  }).join('');
+  G('btn-salvar-lote').style.display='block';
+}
+
+function salvarLote(){
+  if(!LOTE_FILES.length){toast('Nenhum arquivo selecionado.');return;}
+  var tipo=G('pd-lote-t').value;
+  var btn=G('btn-salvar-lote');
+  btn.textContent='Salvando...';btn.disabled=true;
+  var promises=LOTE_FILES.map(function(file,i){
+    return new Promise(function(resolve){
+      var titulo=(G('lote-titulo-'+i)?G('lote-titulo-'+i).value:file.name.replace(/\.[^.]+$/,''))||file.name;
+      var reader=new FileReader();
+      reader.onload=function(e){
+        db.collection('producoes').add({
+          tipo:tipo,titulo:titulo,autores:EU.nm,veiculo:'',status:'Publicado',
+          doi:'',ano:new Date().getFullYear(),arquivo:e.target.result,link:'',
+          uid:EU.uid,autor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()
+        }).then(resolve).catch(resolve);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+  Promise.all(promises).then(function(){
+    fechar('mm-prod');
+    LOTE_FILES=[];
+    G('pd-lote-preview').textContent='Toque para selecionar varios arquivos';
+    G('pd-lote-lista').innerHTML='';
+    G('btn-salvar-lote').style.display='none';
+    btn.textContent='Salvar todos';btn.disabled=false;
+    toast(promises.length+' producoes salvas!');
+  });
+}
+
+// ── BANCAS ──────────────────────────────────────────────────────────────────
+var BANCAS = [];
+
+function ligarBancas(){
+  db.collection('bancas').orderBy('ts_banca','asc').onSnapshot(function(s){
+    BANCAS=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderBancas();
+  },function(e){console.warn('bancas',e.code);});
+}
+
+function renderBancas(){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var prox=BANCAS.filter(function(b){
+    if(!b.data)return true;
+    var d=new Date(b.data);d.setHours(0,0,0,0);return d>=hoje;
+  });
+  var real=BANCAS.filter(function(b){
+    if(!b.data)return false;
+    var d=new Date(b.data);d.setHours(0,0,0,0);return d<hoje;
+  });
+  var el1=G('lista-bancas-prox');
+  var el2=G('lista-bancas-real');
+  if(!el1||!el2)return;
+  if(!prox.length){el1.innerHTML='<div class="empty">Nenhuma banca proxima cadastrada.</div>';}
+  else{el1.innerHTML=prox.map(function(b){return bancaCard(b);}).join('');}
+  if(!real.length){el2.innerHTML='<div class="empty">Nenhuma banca realizada ainda.</div>';}
+  else{el2.innerHTML=real.slice().reverse().map(function(b){return bancaCard(b);}).join('');}
+}
+
+function bancaCard(b){
+  var dt='';
+  if(b.data){
+    var d=new Date(b.data+'T'+(b.hora||'00:00'));
+    dt=d.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'})+' '+(b.hora||'');
+  }
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var bdt=b.data?new Date(b.data):null;if(bdt)bdt.setHours(0,0,0,0);
+  var urgente=bdt&&((bdt-hoje)/(1000*60*60*24))<=7&&bdt>=hoje;
+  return '<div class="card" style="margin-bottom:.75rem;border-left:4px solid '+(urgente?'#A32D2D':'#378ADD')+';">'+
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;">'+
+    '<div><div style="font-size:13px;font-weight:800;color:#042C53;">'+b.aluno+'</div>'+
+    '<div style="font-size:11px;color:#5F5E5A;margin-top:2px;line-height:1.5;">'+b.titulo+'</div></div>'+
+    (b.uid===EU.uid?'<button class="bd" onclick="editarBanca(''+b.fid+'')">✏</button>':'')+'</div>'+
+    (dt?'<div style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:'+(urgente?'#A32D2D':'#185FA5')+';">📅 '+dt+(urgente?' — Em breve!':'')+'</div>':'')+
+    (b.local?'<div style="font-size:11px;color:#888;margin-top:3px;">📍 '+b.local+'</div>':'')+
+    (b.membros?'<div style="font-size:11px;color:#888;margin-top:3px;line-height:1.5;">👥 '+b.membros+'</div>':'')+
+    '<div style="margin-top:5px;"><span class="tag tb">'+b.linha+'</span></div>'+
+    '</div>';
+}
+
+function abrirBanca(){
+  G('bc-fid').value='';
+  G('mm-banca-ti').textContent='Cadastrar Banca';
+  G('bc-aluno').value='';G('bc-titulo').value='';
+  G('bc-data').value='';G('bc-hora').value='09:00';
+  G('bc-local').value='';G('bc-membros').value='';
+  abrir('mm-banca');
+}
+
+function editarBanca(fid){
+  var b=BANCAS.find(function(x){return x.fid===fid;});
+  if(!b||b.uid!==EU.uid){toast('Voce so pode editar suas bancas.');return;}
+  G('bc-fid').value=fid;
+  G('mm-banca-ti').textContent='Editar Banca';
+  G('bc-aluno').value=b.aluno||'';
+  G('bc-titulo').value=b.titulo||'';
+  G('bc-data').value=b.data||'';
+  G('bc-hora').value=b.hora||'09:00';
+  G('bc-local').value=b.local||'';
+  G('bc-membros').value=b.membros||'';
+  G('bc-linha').value=b.linha||'L1';
+  abrir('mm-banca');
+}
+
+function salvarBanca(){
+  var aluno=(G('bc-aluno').value||'').trim();
+  var titulo=(G('bc-titulo').value||'').trim();
+  if(!aluno||!titulo){toast('Informe o aluno e o titulo.');return;}
+  var btn=G('mm-banca').querySelector('.btn');
+  btn.textContent='Salvando...';btn.disabled=true;
+  var fid=G('bc-fid').value;
+  var data={
+    aluno:aluno,titulo:titulo,
+    data:G('bc-data').value,hora:G('bc-hora').value,
+    local:G('bc-local').value,membros:G('bc-membros').value,
+    linha:G('bc-linha').value,
+    uid:EU.uid,autor:EU.nm,
+    ts_banca:G('bc-data').value?firebase.firestore.Timestamp.fromDate(new Date(G('bc-data').value+'T'+(G('bc-hora').value||'00:00'))):firebase.firestore.FieldValue.serverTimestamp(),
+    ts:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var op=fid?db.collection('bancas').doc(fid).set(data,{merge:true}):db.collection('bancas').add(data);
+  op.then(function(){
+    fechar('mm-banca');btn.textContent='Salvar banca';btn.disabled=false;
+    toast(fid?'Banca atualizada!':'Banca cadastrada!');
+  }).catch(function(e){
+    btn.textContent='Salvar banca';btn.disabled=false;
+    toast('Erro: '+e.message);
+  });
 }
 
 // INICIAR
