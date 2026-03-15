@@ -821,30 +821,46 @@ async function checkEmail(){
   const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
   if(!email){lerr('Digite seu e-mail.');return;}
   if(!email.includes('@')){lerr('E-mail inválido.');return;}
+
   const btn=document.getElementById('btn-check');
   btn.textContent='Verificando...';btn.disabled=true;lerr('');
+
+  // First check localStorage for this email
+  const localKey = 'pa_user_'+email.replace(/[^a-z0-9]/g,'_');
+  const localData = localStorage.getItem(localKey);
+  if(localData){
+    try{
+      const u = JSON.parse(localData);
+      CUR_USER={email, uid:u.uid||'local_'+u.id, displayName:u.nm};
+      CUR_PROF={nm:u.nm, sg:u.sg, rl:u.rl, ll:u.ll};
+      localStorage.setItem('pa_session', JSON.stringify({email,...CUR_PROF, uid:CUR_USER.uid}));
+      enterApp(); return;
+    }catch(e){}
+  }
+
+  // Try Firestore (may fail if rules block unauthenticated access)
   try{
-    // Check Firestore for existing user
     const snap = await db.collection('usuarios').where('email','==',email).limit(1).get();
     if(!snap.empty){
-      // User exists — log in
-      const data = snap.docs[0].data();
-      const uid_val = snap.docs[0].id;
-      CUR_USER = {email, uid:uid_val, displayName:data.nm};
-      CUR_PROF = {nm:data.nm, sg:data.sg||initials(data.nm), rl:data.rl||'Pesquisador', ll:data.ll||'L1'};
-      localStorage.setItem('pa_session', JSON.stringify({email, uid:uid_val, ...CUR_PROF}));
-      enterApp();
-    } else {
-      // New user — show registration form
-      document.getElementById('step-email').style.display='none';
-      document.getElementById('step-register').style.display='block';
+      const data=snap.docs[0].data();
+      const uid_val=snap.docs[0].id;
+      CUR_USER={email, uid:uid_val, displayName:data.nm};
+      CUR_PROF={nm:data.nm, sg:data.sg||initials(data.nm), rl:data.rl||'Pesquisador', ll:data.ll||'L1'};
+      const session={email, uid:uid_val, nm:data.nm, sg:CUR_PROF.sg, rl:CUR_PROF.rl, ll:CUR_PROF.ll};
+      localStorage.setItem('pa_session', JSON.stringify(session));
+      localStorage.setItem(localKey, JSON.stringify(session));
+      enterApp(); return;
     }
-  } catch(e){
-    lerr('Erro ao verificar: '+e.message);
-  } finally {
-    btn.textContent='Continuar →';btn.disabled=false;
+  }catch(e){
+    console.warn('Firestore check failed (rules may need update):', e.code);
   }
+
+  // Not found anywhere — show registration
+  document.getElementById('step-email').style.display='none';
+  document.getElementById('step-register').style.display='block';
+  btn.textContent='Continuar →';btn.disabled=false;
 }
+
 
 async function doRegister(){
   const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
@@ -854,22 +870,27 @@ async function doRegister(){
   if(!nome){lerr('Digite seu nome completo.');return;}
   const btn=document.getElementById('btn-register');
   btn.textContent='Criando acesso...';btn.disabled=true;lerr('');
-  try{
-    const sg = initials(nome);
-    const docRef = await db.collection('usuarios').add({
-      email, nm:nome, sg, rl:papel, ll:linha,
-      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
-      prog:0
-    });
-    CUR_USER = {email, uid:docRef.id, displayName:nome};
-    CUR_PROF = {nm:nome, sg, rl:papel, ll:linha};
-    localStorage.setItem('pa_session', JSON.stringify({email, uid:docRef.id, nm:nome, sg, rl:papel, ll:linha}));
-    enterApp();
-  } catch(e){
-    lerr('Erro ao criar acesso: '+e.message);
-    btn.textContent='Criar meu acesso';btn.disabled=false;
-  }
+
+  const sg=initials(nome);
+  const uid_val='user_'+Date.now();
+  const userData={email,nm:nome,sg,rl:papel,ll:linha,uid:uid_val,prog:0};
+
+  // Save locally immediately — works even without Firestore
+  const localKey='pa_user_'+email.replace(/[^a-z0-9]/g,'_');
+  localStorage.setItem(localKey, JSON.stringify(userData));
+  localStorage.setItem('pa_session', JSON.stringify(userData));
+  CUR_USER={email, uid:uid_val, displayName:nome};
+  CUR_PROF={nm:nome,sg,rl:papel,ll:linha};
+
+  // Try to save to Firestore in background (non-blocking)
+  db.collection('usuarios').doc(uid_val).set({
+    email,nm:nome,sg,rl:papel,ll:linha,prog:0,
+    criadoEm:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(e=>console.warn('Firestore save failed (rules):', e.code));
+
+  enterApp();
 }
+
 
 function initials(nome){
   return nome.split(' ').filter(w=>w.length>2).map(w=>w[0].toUpperCase()).join('').substring(0,2)||'??';
