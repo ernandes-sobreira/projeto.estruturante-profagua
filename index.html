@@ -474,7 +474,17 @@ input:focus,select:focus,textarea:focus{border-color:#378ADD;background:#fff;}
 
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
+firebase.initializeApp({
+  apiKey:"AIzaSyD2W6MC9hg0MQbr4IAIn-YDauV7MHQaVfM",
+  authDomain:"profagua-unemat.firebaseapp.com",
+  projectId:"profagua-unemat",
+  messagingSenderId:"563954651220",
+  appId:"1:563954651220:web:89deba47a14541fe06ddc1"
+});
+var db = firebase.firestore();
 var EU = null;
 var D = {metas:[],prods:[],ativs:[],alunos:[],mg:{}};
 var MURAL = [];
@@ -550,14 +560,48 @@ function lnTag(ll){
 }
 
 function salvarLocal(){
-  try{localStorage.setItem('pag_d_'+EU.uid,JSON.stringify(D));}catch(e){}
-  try{localStorage.setItem('pag_mg',JSON.stringify(D.mg));}catch(e){}
+  // Only personal metas saved locally
+  var personal = {metas: D.metas};
+  try{localStorage.setItem('pag_d_'+EU.uid,JSON.stringify(personal));}catch(e){}
 }
 function carregarLocal(){
+  // Metas pessoais - localStorage only
   try{var s=localStorage.getItem('pag_d_'+EU.uid);if(s)D=JSON.parse(s);}catch(e){}
   try{var mg=localStorage.getItem('pag_mg');if(mg)D.mg=JSON.parse(mg);}catch(e){}
-  try{MURAL=JSON.parse(localStorage.getItem('pag_mural')||'[]');}catch(e){}
-  try{USUARIOS=JSON.parse(localStorage.getItem('pag_usuarios')||'[]');}catch(e){}
+  // Shared data - Firestore listeners
+  ligarFirestore();
+}
+function ligarFirestore(){
+  // MURAL
+  db.collection('mural').orderBy('ts','desc').onSnapshot(function(s){
+    MURAL=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderMural();renderInicio();
+  },function(e){console.warn('mural',e.code);});
+  // USUARIOS
+  db.collection('usuarios').onSnapshot(function(s){
+    USUARIOS=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderEquipe();renderInicio();
+  },function(e){console.warn('usuarios',e.code);});
+  // PRODUCOES
+  db.collection('producoes').orderBy('ts','desc').onSnapshot(function(s){
+    D.prods=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderProd();renderInicio();renderPerfil();
+  },function(e){console.warn('producoes',e.code);});
+  // ATIVIDADES
+  db.collection('atividades').orderBy('ts','desc').onSnapshot(function(s){
+    D.ativs=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderAtiv();
+  },function(e){console.warn('atividades',e.code);});
+  // ALUNOS
+  db.collection('alunos').orderBy('ts','desc').onSnapshot(function(s){
+    D.alunos=s.docs.map(function(d){return Object.assign({fid:d.id},d.data());});
+    renderAlunos();renderInicio();renderPerfil();
+  },function(e){console.warn('alunos',e.code);});
+  // METAS PROJETO
+  db.collection('metas_proj').onSnapshot(function(s){
+    s.docs.forEach(function(d){D.mg[d.id]=d.data();});
+    renderMG();renderInicio();
+  },function(e){console.warn('metas_proj',e.code);});
 }
 
 // LOGIN
@@ -590,9 +634,12 @@ function cadastrar(){
   var k='pag_u_'+email.replace(/[^a-z0-9]/g,'_');
   try{localStorage.setItem(k,JSON.stringify(EU));}catch(e){}
   try{localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
-  USUARIOS=USUARIOS.filter(function(u){return u.email!==email;});
-  USUARIOS.push(EU);
-  try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
+  // Save user to Firestore
+  db.collection('usuarios').doc(EU.uid).set({
+    email:email,nm:nm,sg:sg,rl:rl,ll:ll,
+    lattes:'',orcid:'',bio:'',foto:'',
+    ts:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(e){console.warn('save user',e);});
   entrar();
 }
 function sair(){
@@ -632,6 +679,9 @@ function carregarFoto(input){
     USUARIOS.push(EU);
     try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
     atualizarAvatar(G('hav'),EU);
+    // Update foto in Firestore
+    db.collection('usuarios').doc(EU.uid).update({foto:EU.foto})
+      .catch(function(e){console.warn('foto update',e);});
     renderPerfil();toast('Foto atualizada!');
   };
   reader.readAsDataURL(file);
@@ -720,7 +770,7 @@ function renderMural(){
       '<div class="mural-post-hdr">'+avHtml+
       '<div><div style="font-size:12px;font-weight:800;color:#042C53;">'+(m.autor||'')+'</div>'+
       '<div style="font-size:10px;color:#888;">'+(m.data||'')+'</div></div>'+
-      (m.uid===EU.uid?'<button class="bd" style="margin-left:auto;" onclick="delMural('+i+')">X</button>':'')+'</div>'+
+      (m.uid===EU.uid?'<button class="bd" style="margin-left:auto;" onclick="delMural(\''+m.fid+'\',\''+m.uid+'\')">X</button>':'')+'</div>'+
       fotoHtml+
       '<div class="mural-post-body">'+
       '<div class="mural-post-titulo">'+m.titulo+'</div>'+
@@ -776,9 +826,12 @@ function salvarPerfil(){
   EU.sg=ini(EU.nm);
   var k='pag_u_'+EU.email.replace(/[^a-z0-9]/g,'_');
   try{localStorage.setItem(k,JSON.stringify(EU));localStorage.setItem('pag_sess',JSON.stringify(EU));}catch(e){}
-  USUARIOS=USUARIOS.filter(function(u){return u.email!==EU.email;});
-  USUARIOS.push(EU);
-  try{localStorage.setItem('pag_usuarios',JSON.stringify(USUARIOS));}catch(e){}
+  // Update Firestore
+  db.collection('usuarios').doc(EU.uid).set({
+    email:EU.email,nm:EU.nm,sg:EU.sg,rl:EU.rl,ll:EU.ll,
+    lattes:EU.lattes,orcid:EU.orcid,bio:EU.bio,foto:EU.foto,
+    ts:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true}).catch(function(e){console.warn('update user',e);});
   fechar('mm-perfil');
   renderPerfil();renderInicio();
   toast('Perfil atualizado!');
@@ -817,8 +870,10 @@ function abrirMG(id){
 
 function salvarMG(){
   if(!MG_SEL)return;
-  D.mg[MG_SEL]={pct:parseInt(G('mg-pct').value),status:G('mg-st').value};
-  salvarLocal();fechar('mm-mg');renderMG();renderInicio();toast('Progresso atualizado!');
+  var data={pct:parseInt(G('mg-pct').value),status:G('mg-st').value,atualizadoPor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()};
+  db.collection('metas_proj').doc(MG_SEL).set(data,{merge:true})
+    .then(function(){fechar('mm-mg');toast('Progresso atualizado!');})
+    .catch(function(e){toast('Erro: '+e.message);});
 }
 
 function renderMP(){
@@ -898,7 +953,7 @@ function renderProd(){
       '<div style="font-size:11px;color:#888;margin:3px 0;">'+(p.veiculo||'')+(p.autores?' - '+p.autores:'')+'</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">'+
       '<span class="tag tb">'+p.tipo+'</span>'+
-      '<button class="bd" onclick="delD(\'prods\','+i+')">X</button></div></div>';
+      '<button class="bd" onclick="delD(\'prods\',\''+p.fid+'\',\''+p.uid+'\')'+(p.uid!==EU.uid?' style="display:none"':'')+'">X</button></div></div>';
   }).join('');
 }
 
@@ -924,43 +979,65 @@ function renderAlunos(){
       '<div style="flex:1;"><div style="font-weight:700;color:#042C53;">'+a.nm+'</div>'+
       '<div style="font-size:11px;color:#185FA5;margin:2px 0;">'+(a.titulo||'Titulo em definicao')+'</div>'+
       '<span class="tag tb">'+(a.linha||'')+'</span></div>'+
-      '<button class="bd" onclick="delD(\'alunos\','+i+')">X</button></div>';
+      '<button class="bd" onclick="delD(\'alunos\',\''+a.fid+'\',\''+a.uid+'\')'+(a.uid!==EU.uid?' style="display:none"':'')+'">X</button></div>';
   }).join('');
 }
 
 function salvarMural(){
   var t=(G('mu-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
-  MURAL.push({titulo:t,texto:G('mu-tx').value,foto:MU_FOTO_DATA||'',emoji:'📢',autor:EU.nm,sg:EU.sg,uid:EU.uid,data:new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'})});
-  try{localStorage.setItem('pag_mural',JSON.stringify(MURAL));}catch(e){}
-  fechar('mm-mural');G('mu-ti').value='';G('mu-tx').value='';
-  G('mu-foto-preview').textContent='Toque para selecionar uma foto';
-  MU_FOTO_DATA=null;
-  renderMural();renderInicio();toast('Publicado!');
+  db.collection('mural').add({
+    titulo:t,texto:G('mu-tx').value,foto:MU_FOTO_DATA||'',
+    autor:EU.nm,sg:EU.sg,uid:EU.uid,
+    data:new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'}),
+    ts:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    fechar('mm-mural');G('mu-ti').value='';G('mu-tx').value='';
+    G('mu-foto-preview').textContent='Toque para selecionar uma foto';
+    MU_FOTO_DATA=null;
+    toast('Publicado!');
+  }).catch(function(e){toast('Erro ao publicar: '+e.message);});
 }
 
-function delMural(i){
-  if(!confirm('Remover?'))return;
-  MURAL.splice(i,1);
-  try{localStorage.setItem('pag_mural',JSON.stringify(MURAL));}catch(e){}
-  renderMural();renderInicio();toast('Removido.');
+function delMural(fid,uid){
+  if(uid!==EU.uid){toast('Voce so pode remover suas proprias publicacoes.');return;}
+  if(!confirm('Remover esta publicacao?'))return;
+  db.collection('mural').doc(fid).delete().then(function(){toast('Removido.');}).catch(function(e){toast('Erro: '+e.message);});
 }
 
 function salvarProd(){
   var t=(G('pd-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
-  D.prods.push({tipo:G('pd-t').value,titulo:t,autores:G('pd-a').value,veiculo:G('pd-v').value,status:G('pd-s').value});
-  salvarLocal();fechar('mm-prod');G('pd-ti').value='';renderProd();renderInicio();toast('Salvo!');
+  db.collection('producoes').add({
+    tipo:G('pd-t').value,titulo:t,autores:G('pd-a').value,
+    veiculo:G('pd-v').value,status:G('pd-s').value,
+    uid:EU.uid,autor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){fechar('mm-prod');G('pd-ti').value='';toast('Salvo!');})
+  .catch(function(e){toast('Erro: '+e.message);});
 }
 function salvarAtiv(){
   var t=(G('at-ti').value||'').trim();if(!t){toast('Informe o titulo.');return;}
-  D.ativs.push({tipo:G('at-t').value,titulo:t,data:G('at-d').value,local:G('at-l').value,alunos:G('at-al').value,desc:G('at-de').value,autor:EU.nm});
-  salvarLocal();fechar('mm-ativ');G('at-ti').value='';renderAtiv();renderInicio();toast('Registrado!');
+  db.collection('atividades').add({
+    tipo:G('at-t').value,titulo:t,data:G('at-d').value,
+    local:G('at-l').value,alunos:G('at-al').value,desc:G('at-de').value,
+    uid:EU.uid,autor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){fechar('mm-ativ');G('at-ti').value='';toast('Registrado!');})
+  .catch(function(e){toast('Erro: '+e.message);});
 }
 function salvarAluno(){
   var n=(G('aln-n').value||'').trim();if(!n){toast('Informe o nome.');return;}
-  D.alunos.push({nm:n,titulo:G('aln-t').value,linha:G('aln-l').value,defesa:G('aln-def').value});
-  salvarLocal();fechar('mm-aln');G('aln-n').value='';renderAlunos();renderInicio();toast('Cadastrado!');
+  db.collection('alunos').add({
+    nm:n,titulo:G('aln-t').value,linha:G('aln-l').value,defesa:G('aln-def').value,
+    uid:EU.uid,autor:EU.nm,ts:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){fechar('mm-aln');G('aln-n').value='';toast('Cadastrado!');})
+  .catch(function(e){toast('Erro: '+e.message);});
 }
-function delD(col,i){if(!confirm('Remover?'))return;D[col].splice(i,1);salvarLocal();renderTudo();}
+function delD(col,fid,uid){
+  if(uid!==EU.uid){toast('Voce so pode remover seus proprios registros.');return;}
+  if(!confirm('Remover?'))return;
+  var colMap={prods:'producoes',ativs:'atividades',alunos:'alunos'};
+  db.collection(colMap[col]).doc(fid).delete()
+    .then(function(){toast('Removido.');})
+    .catch(function(e){toast('Erro: '+e.message);});
+}
 
 // INICIAR
 try{
