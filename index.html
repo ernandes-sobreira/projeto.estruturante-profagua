@@ -660,7 +660,6 @@ function sair(){
 }
 
 function entrar(){
-  try {
   $('tela-login').style.display='none';
   $('tela-app').style.display='flex';
   $('hnm').textContent=EU.nm.split(' ').slice(0,2).join(' ');
@@ -1088,11 +1087,4 @@ async function del(col,id){
 })();
 </script>
 </body>
-</html
-  } catch(e){
-    console.error('entrar() error:', e);
-    // Show error on login screen
-    document.getElementById('tela-login').style.display='flex';
-    document.getElementById('tela-app').style.display='none';
-  }
->
+</html>
